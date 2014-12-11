@@ -1,5 +1,6 @@
 #include <cmath>
 #include "Math/GenVector/LorentzVector.h"
+#include "TLorentzVector.h"
 
 //// UTILITY FUNCTIONS NOT IN TFORMULA ALREADY
 
@@ -8,6 +9,13 @@ float deltaPhi(float phi1, float phi2) {
     while (result > float(M_PI)) result -= float(2*M_PI);
     while (result <= -float(M_PI)) result += float(2*M_PI);
     return result;
+}
+
+float deltaPhiConst1Prod(float pt1, float eta1, float phi1, float m1, float pt2, float eta2, float phi2, float m2) {
+    TLorentzVector p41, p42;
+    p41.SetPtEtaPhiM(pt1,eta1,phi1,m1);
+    p42.SetPtEtaPhiM(pt2,eta2,phi2,m2);
+    return p41.DeltaPhi(p41+p42);
 }
 
 float if3(bool cond, float iftrue, float iffalse) {

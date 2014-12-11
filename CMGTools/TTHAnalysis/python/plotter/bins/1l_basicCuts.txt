@@ -1,0 +1,7 @@
+== 1 good lepton: nLepGood20 == 1
+ptlep1 > 20 (trivial): LepGood1_pt>20
+6j: nJet40>=6
+1b medium: nBJetMedium40 >= 1
+ht500: htJet40 >=500
+st250: LepGood1_pt + met_pt > 250
+
