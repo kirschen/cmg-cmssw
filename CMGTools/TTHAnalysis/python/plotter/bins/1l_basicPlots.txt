@@ -10,5 +10,5 @@ hLepEta:     LepGood1_eta                           : 100,-4,4  : XTitle="#eta^{
 hdPhiLepMET: fabs(deltaPhi(LepGood1_phi,met_phi))   : 100,0,4   : XTitle="#Delta #varphi (lep,MET)"
 hdPhiLepW:   fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass))   : 100,0,4   : XTitle="#Delta #varphi (lep,W)"
 
-f_hMET:        METCopyPt                                 : 400,0,4000: XTitle="MET [GeV]"
-f_hdPhiLepW:   fabs(DeltaPhiLepW)                        : 100,0,4   : XTitle="#Delta #varphi (lep,W)"
+#f_hMET:        METCopyPt                                 : 400,0,4000: XTitle="MET [GeV]"
+#f_hdPhiLepW:   fabs(DeltaPhiLepW)                        : 100,0,4   : XTitle="#Delta #varphi (lep,W)"
