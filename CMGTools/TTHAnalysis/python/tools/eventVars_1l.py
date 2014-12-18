@@ -4,7 +4,7 @@ import ROOT
 
 class EventVars1L:
     def __init__(self):
-        self.branches = [ "METCopyPt", "DeltaPhiLepW" ]
+        self.branches = [ "METCopyPt", "DeltaPhiLepW", "minDPhiBMET", "idxMinDPhiBMET", "mTClBPlusMET" ]
     def listBranches(self):
         return self.branches[:]
     def __call__(self,event):
@@ -30,6 +30,28 @@ class EventVars1L:
             recoWp4 =  leps[0].p4() + metp4
             dPhiLepW = leps[0].p4().DeltaPhi(recoWp4)
         ret["DeltaPhiLepW"] = dPhiLepW
+
+        minDPhiBMET = 100
+        idxMinDPhiBMET=-999
+        for i, jet in enumerate(jets):
+            if jet.btagCSV > 0.679:
+                dPhiBMET = abs(jet.p4().DeltaPhi(metp4))
+                if dPhiBMET<minDPhiBMET:
+                    minDPhiBMET=dPhiBMET
+                    idxMinDPhiBMET = i
+#                    print dPhiBMET, i
+
+        ret["idxMinDPhiBMET"] = idxMinDPhiBMET
+        ret["minDPhiBMET"] = minDPhiBMET
+
+        
+        if(idxMinDPhiBMET>=0):
+            SumMetClosestBJet = jets[idxMinDPhiBMET].p4() + metp4
+            ret["mTClBPlusMET"] = SumMetClosestBJet.Mt()
+        else:
+            ret["mTClBPlusMET"] = -999
+
+        
 
         return ret
 
