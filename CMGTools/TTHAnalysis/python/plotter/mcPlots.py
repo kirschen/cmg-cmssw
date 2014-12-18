@@ -122,7 +122,7 @@ def doDataNorm(pspec,pmap):
     sig.Draw("HIST SAME")
     return sig
 
-def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0):
+def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0, skipNormalization = False):
     total = sum([v.Integral() for k,v in pmap.iteritems() if k != 'data' and not hasattr(v,'summary')])
     if options.noStackSig:
         total = sum([v.Integral() for k,v in pmap.iteritems() if not hasattr(v,'summary') and mca.isBackground(k) ])
@@ -133,7 +133,10 @@ def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0):
             sig.SetFillStyle(0)
             sig.SetLineColor(sig.GetFillColor())
             sig.SetLineWidth(4)
-            sig.Scale(total*extrascale/sig.Integral())
+            if skipNormalization:
+                sig.Scale(extrascale)
+            else: 
+                sig.Scale(total*extrascale/sig.Integral())
             sig.Draw("HIST SAME")
             sigs.append(sig)
         return sigs
@@ -146,7 +149,9 @@ def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0):
         sig.SetFillStyle(0)
         sig.SetLineColor(206)
         sig.SetLineWidth(4)
-        if sig.Integral() > 0:
+        if skipNormalization:
+            sig.Scale(extrascale)
+        else if sig.Integral() > 0:
             sig.Scale(total*extrascale/sig.Integral())
         sig.Draw("HIST SAME")
         return [sig]
@@ -621,13 +626,13 @@ class PlotMaker:
                 if self._options.plotmode == "norm": legendCutoff = 0 
                 doLegend(pmap,mca,corner=pspec.getOption('Legend','TR'),
                                   cutoff=legendCutoff, mcStyle=("F" if self._options.plotmode == "stack" else "L"),
-                                  cutoffSignals=not(options.showSigShape or options.showIndivSigShapes or options.showSFitShape), 
+                                  cutoffSignals=not(options.showSigShape or options.showIndivSigShapes or options.showSFitShape or options.showIndivSig), 
                                   textSize=(0.045 if doRatio else 0.035),
                                   legWidth=options.legendWidth)
                 doTinyCmsPrelim(hasExpo = total.GetMaximum() > 9e4 and not c1.GetLogy(),textSize=(0.045 if doRatio else 0.033))
                 signorm = None; datnorm = None; sfitnorm = None
-                if options.showSigShape or options.showIndivSigShapes: 
-                    signorms = doStackSignalNorm(pspec,pmap,options.showIndivSigShapes,extrascale=options.signalPlotScale)
+                if options.showSigShape or options.showIndivSigShapes or options.showIndivSig: 
+                    signorms = doStackSignalNorm(pspec,pmap,options.showIndivSigShapes,extrascale=options.signalPlotScale, options.showIndivSig)
                     for signorm in signorms:
                         signorm.SetDirectory(dir); dir.WriteTObject(signorm)
                         reMax(total,signorm,islog)
@@ -702,6 +707,7 @@ def addPlotMakerOptions(parser):
     parser.add_option("--pdir", "--print-dir", dest="printDir", type="string", default="plots", help="print out plots in this directory");
     parser.add_option("--showSigShape", dest="showSigShape", action="store_true", default=False, help="Superimpose a normalized signal shape")
     parser.add_option("--showIndivSigShapes", dest="showIndivSigShapes", action="store_true", default=False, help="Superimpose normalized shapes for each signal individually")
+    parser.add_option("--showIndivSig", dest="showIndivSig", action="store_true", default=False, help="Superimpose each signal individually (without normalizing to the total yield)")
     parser.add_option("--noStackSig", dest="noStackSig", action="store_true", default=False, help="Don't add the signal shape to the stack (useful with --showSigShape)")
     parser.add_option("--showDatShape", dest="showDatShape", action="store_true", default=False, help="Stack a normalized data shape")
     parser.add_option("--showSFitShape", dest="showSFitShape", action="store_true", default=False, help="Stack a shape of background + scaled signal normalized to total data")
