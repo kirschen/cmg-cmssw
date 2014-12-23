@@ -134,6 +134,7 @@ def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0, skipNormalization =
             sig.SetLineColor(sig.GetFillColor())
             sig.SetLineWidth(4)
             if skipNormalization:
+                print "only scale by extrascale " + str(extrascale)
                 sig.Scale(extrascale)
             else: 
                 sig.Scale(total*extrascale/sig.Integral())
@@ -151,7 +152,7 @@ def doStackSignalNorm(pspec,pmap,individuals,extrascale=1.0, skipNormalization =
         sig.SetLineWidth(4)
         if skipNormalization:
             sig.Scale(extrascale)
-        else if sig.Integral() > 0:
+        elif sig.Integral() > 0:
             sig.Scale(total*extrascale/sig.Integral())
         sig.Draw("HIST SAME")
         return [sig]
@@ -632,7 +633,10 @@ class PlotMaker:
                 doTinyCmsPrelim(hasExpo = total.GetMaximum() > 9e4 and not c1.GetLogy(),textSize=(0.045 if doRatio else 0.033))
                 signorm = None; datnorm = None; sfitnorm = None
                 if options.showSigShape or options.showIndivSigShapes or options.showIndivSig: 
-                    signorms = doStackSignalNorm(pspec,pmap,options.showIndivSigShapes,extrascale=options.signalPlotScale, options.showIndivSig)
+                    if options.showSigShape:
+                        signorms = doStackSignalNorm(pspec,pmap,False,extrascale=options.signalPlotScale, skipNormalization=options.showIndivSig)
+                    else:
+                        signorms = doStackSignalNorm(pspec,pmap,True,extrascale=options.signalPlotScale, skipNormalization=options.showIndivSig)
                     for signorm in signorms:
                         signorm.SetDirectory(dir); dir.WriteTObject(signorm)
                         reMax(total,signorm,islog)
