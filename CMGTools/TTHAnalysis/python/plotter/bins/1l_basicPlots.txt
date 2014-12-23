@@ -1,14 +1,33 @@
-hHT:         htJet40                                : 400,0,4000;  XTitle="HT [GeV]"
-hST:         LepGood1_pt + met_pt                   : 400,0,4000;  XTitle="ST [GeV]"
-hMET:        met_pt                                 : 400,0,4000;  XTitle="MET [GeV]"
-h0JetpT:     Jet1_pt                                : 200,0,2000;  XTitle="p_{T}^{jet 1} [GeV] "
-hnJet:       nJet40                                 : 20,0,20   ;  XTitle="jet multiplicity"
-hnBJet:      nBJetMedium40                          : 20,0,20   ;  XTitle="B-jet multiplicity"
-hnLep:       nLepGood20                             : 20,0,20   ;  XTitle="lepgood20 multiplicity"
-hLepPt:      LepGood1_pt                            : 100,0,1000;  XTitle="p_{T}^{1st good lepton} [GeV]"
-hLepEta:     LepGood1_eta                           : 100,-4,4  ;  XTitle="#eta^{1st good lepton}"
-hdPhiLepMET: fabs(deltaPhi(LepGood1_phi,met_phi))   : 100,0,4   ;  XTitle="#Delta #varphi (lep,MET)"
-hdPhiLepW:   fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass))   : 100,0,3.141   ; XTitle="#Delta #varphi (lep\,W)", YTitle="Events/bin", Logy
+#hHT:         htJet40                                : 400,0,4000;  XTitle="HT [GeV]"
+#hST:         LepGood1_pt + met_pt                   : 400,0,4000;  XTitle="ST [GeV]"
+#hMET:        met_pt                                 : 400,0,4000;  XTitle="MET [GeV]"
+#h0JetpT:     Jet1_pt                                : 200,0,2000;  XTitle="p_{T}^{jet 1} [GeV] "
+#hnJet:       nJet40                                 : 20,0,20   ;  XTitle="jet multiplicity"
+#hnBJet:      nBJetMedium40                          : 20,0,20   ;  XTitle="B-jet multiplicity"
+#hnLep:       nLepGood20                             : 20,0,20   ;  XTitle="lepgood20 multiplicity"
+#hLepPt:      LepGood1_pt                            : 100,0,1000;  XTitle="p_{T}^{1st good lepton} [GeV]"
+#hLepEta:     LepGood1_eta                           : 100,-4,4  ;  XTitle="#eta^{1st good lepton}"
+#hdPhiLepMET: fabs(deltaPhi(LepGood1_phi,met_phi))   : 100,0,4   ;  XTitle="#Delta #varphi (lep\,MET)"
+#hdPhiLepW:   fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass))   : 100,0,3.141   ; XTitle="#Delta #varphi (lep\,W)", YTitle="Events/bin", LegendCutoff=0
+#hdPhiLepWgt1:   fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass)) *(fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass))>1)   : 100,0.00001,3.141   ; XTitle="#Delta #varphi (lep\,W)", YTitle="Events/bin", IncludeOverflows=False, LegendCutoff=0
+#
+##f_hMET:        METCopyPt                                 : 400,0,4000; XTitle="MET [GeV]"
+#f_hdPhiLepW:   fabs(DeltaPhiLepW)                        : 100,0,3.141   ; XTitle="#Delta #varphi (lep\,W)"
+#
+#f_hdPhiLepW_OTF:   fabs(DeltaPhiLepW)\:fabs(deltaPhiConst1Prod(LepGood1_pt, LepGood1_eta, LepGood1_phi, LepGood1_mass, met_pt, met_eta, met_phi, met_mass))                        : 100,0,3.141,100,0,3.141   ; XTitle="#Delta #varphi (lep\,W)"
+#
 
-#f_hMET:        METCopyPt                                 : 400,0,4000; XTitle="MET [GeV]"
-#f_hdPhiLepW:   fabs(DeltaPhiLepW)                        : 100,0,4   ; XTitle="#Delta #varphi (lep,W)"
+
+f_hdPhiLepW_lepPtOverMET:    LepGood1_pt/met_pt  \:  fabs(DeltaPhiLepW)                : 10,0,3.141,10,0,2   ; XTitle="#Delta #varphi (lep\,W)", YTitle="lep pt/met"
+
+f_hdPhiLepW_lepPtOverST:   LepGood1_pt/(met_pt+LepGood1_pt) \: fabs(DeltaPhiLepW)                      : 10,0,3.141,10,0,2   ; XTitle="#Delta #varphi (lep\,W)", YTitle="lep pt/st"
+
+mtbmet_mtlmet:   (fabs(DeltaPhiLepW)<1) * (mt_2(Jet_pt[idxMinDPhiBMET], Jet_phi[idxMinDPhiBMET], met_pt, met_phi))    \: (fabs(DeltaPhiLepW)<1) * (mt_2(LepGood1_pt, LepGood1_phi, met_pt, met_phi))                      : 10,0.001,200,10,0.001,200   ; XTitle="mt(l\, met)", YTitle="mt(b\,met)"
+
+f_mtbmet_mtlmet:   (fabs(DeltaPhiLepW)<1) * (mTBJetMET) \: (fabs(DeltaPhiLepW)<1) *mTLepMET          : 10,0.001,200,10,0.001,200   ; XTitle="mt(l\, met)", YTitle="mt(b\,met)"
+
+f_projMET_mlbOvermtop : (fabs(DeltaPhiLepW)<1 && mTBJetMET < 120 && mTLepMET < 120) * METtoTopProjection \: (fabs(DeltaPhiLepW)<1 && mTBJetMET < 120 && mTLepMET < 120) * mLepBJet/173.3 :  20,0.001,5,20,0.001,5   ; XTitle="mLepBJet_{reco}/mTop", YTitle="METtoTOPProjection"
+
+
+
+
