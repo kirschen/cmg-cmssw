@@ -7,10 +7,10 @@ import os
 cardDirectory="susy_cards_1l_4fb"
 
 Samples = []
-#Samples.append("T1tttt_HL_1500_100")
-Samples.append("T1ttbbWW_1300_300_290")
-Samples.append("T1ttbbWW_1300_300_295")
-#Samples.append("T1tttt_HM_1200_800")
+Samples.append("T1tttt_HL_1500_100")
+#Samples.append("T1ttbbWW_1300_300_290")
+#Samples.append("T1ttbbWW_1300_300_295")
+Samples.append("T1tttt_HM_1200_800")
 #Samples.append("T5qqqqWW_Gl1200_Chi1000_LSP800")
 #Samples.append("T5ttttDeg_1300_300_280")
 
@@ -18,12 +18,11 @@ Samples.append("T1ttbbWW_1300_300_295")
 
 #VariantSnippet = ["standardnJ_HTTTYesNo","standardnJ_HT1","finenJ_HTTTYesNo","finenJ_HT1"]
 #VariantSnippet = ["standardnJ_HTLowLepPt","standardnJ_HTLowLepPtDPhi","standardnJ_HT1","finenJ_HTLowLepPt","finenJ_HTLowLepPtDPhi","finenJ_HT1"]
-VariantSnippet = ["standardnJ_HTLowLepPt","standardnJ_HT1","standardnJ_HighLowLepPt","finenJ_HTLowLepPt","finenJ_HT1","finenJ_HighLowLepPt"]
+#VariantSnippet = ["standardnJ_HTLowLepPt","standardnJ_HT1","standardnJ_HighLowLepPt","finenJ_HTLowLepPt","finenJ_HT1","finenJ_HighLowLepPt"]
 #VariantSnippet = ["standardnJ_HighLowLepPt","finenJ_HighLowLepPt"]
-#
 #VariantSnippet = ["standardnJ", "finenJ","finenJ_HT1","standardnJ_HT1"]
-#
 #VariantSnippet = ["finenJ_HT1","standardnJ_HT1","finenJ_HTTop","standardnJ_HTTop"]
+VariantSnippet = ["standardnJ", "finenJ"]
 
 
 #standard: baseline
