@@ -18,6 +18,9 @@ susySingleLepton_globalVariables = susyCore_globalVariables + [
             # ----------------------- MET filter information (temporary)  -------------------------------------------------------------------- #
             NTupleVariable("Flag_HBHENoiseFilter_fix", lambda ev: ev.hbheFilterNew, help="HBEHE temporary filter decision"),
 
+            # ----------------------- HT from LHE event (requires LHE analyzer to have run)  --------------------------------------------------------- #
+            NTupleVariable("lheHT", lambda ev : ev.lheHT, help="H_{T} computed from quarks and gluons in LHEAnalyzer"),
+
 ]
 susySingleLepton_globalObjects = susyCore_globalObjects.copy()
 susySingleLepton_globalObjects.update({

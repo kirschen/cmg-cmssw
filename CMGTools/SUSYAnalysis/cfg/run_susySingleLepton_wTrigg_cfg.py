@@ -48,7 +48,7 @@ jetAna.minLepPt = 10 # --- JET-LEPTON CLEANING ---
 jetAna.jetPt = 25
 jetAna.jetEta = 2.4
 
-#jetAna.mcGT = "Summer15_V5_p6_MC" # use default
+jetAna.mcGT = "Summer15_25nsV2_MC"
 jetAna.doQG = True
 jetAna.smearJets = False #should be false in susycore, already
 jetAna.recalibrateJets = True #should be true in susycore, already
@@ -80,6 +80,10 @@ ttHSTSkimmer = cfg.Analyzer(
 	ttHSTSkimmer, name='ttHSTSkimmer',
 	minST = 200,
 	)
+
+#add LHE Analyzer
+from PhysicsTools.Heppy.analyzers.gen.LHEAnalyzer import LHEAnalyzer 
+LHEAna = LHEAnalyzer.defaultConfig
 
 #from CMGTools.RootTools.samples.triggers_13TeV_Spring15 import * # central trigger list
 from CMGTools.RootTools.samples.triggers_13TeV_Spring15_1l import *
@@ -142,9 +146,11 @@ treeProducer = cfg.Analyzer(
 #-------- SAMPLES AND TRIGGERS -----------
 
 # -- new 74X samples
-#from CMGTools.RootTools.samples.samples_13TeV_74X import *
+from CMGTools.RootTools.samples.samples_13TeV_74X import *
+from CMGTools.RootTools.samples.samples_13TeV_74X_susySignalsPriv import *
+
 # -- samples at DESY
-from CMGTools.SUSYAnalysis.samples.samples_13TeV_74X_desy import *
+#from CMGTools.SUSYAnalysis.samples.samples_13TeV_74X_desy import *
 
 #selectedComponents = [
 #	T1tttt_mGo1500_mChi100,
@@ -155,33 +161,55 @@ from CMGTools.SUSYAnalysis.samples.samples_13TeV_74X_desy import *
 	#TTJets_LO_50ns,
 	#TTJets_LO_25ns
 #        ]
-selectedComponents = [
-    QCD_HT300to500,
-    QCD_HT500to700,
-    QCD_HT700to1000,
-    QCD_HT1000to1500,
-    QCD_HT1500to2000,
-    QCD_HT2000toInf
-]
+#selectedComponents = [
+#    QCD_HT300to500,
+#    QCD_HT500to700,
+#    QCD_HT700to1000,
+#    QCD_HT1000to1500,
+#    QCD_HT1500to2000,
+#    QCD_HT2000toInf
+#]
+
+selectedComponents = [TTJets, WJetsToLNu, DYJetsToLL_M50 ] + T1tttt_priv
+#selectedComponents = TTs +SingleTop+ DYJetsM50HT + WJetsToLNuHT + ZJetsToNuNuHT+ QCDHT + Higgs + T1tttt_priv #+ [WJetsToLNu]
+#selectedComponents=MCNTuples25ns
+#from Old PHYS14 Easter Production
+##selectedComponents = [QCD_HT_100To250, QCD_HT_250To500, QCD_HT_500To1000, QCD_HT_1000ToInf,TTJets, TTWJets, TTZJets, TTH, SMS_T1tttt_2J_mGl1500_mLSP100, SMS_T1tttt_2J_mGl1200_mLSP800] + SingleTop + WJetsToLNuHT + DYJetsM50HT + T5ttttDeg + T1ttbbWW + T5qqqqWW
+##selectedComponents = [WJetsToLNu_HT600toInf]
+##QCD_HT_250To500_ext1,
+##QCD_HT_500To1000_ext1,
+##QCD_HT_1000ToInf_ext1
+##]
+#selectedComponents = [SMS_T2tt_2J_mStop850_mLSP100, 
+#SMS_T2tt_2J_mStop650_mLSP325, 
+#SMS_T2tt_2J_mStop500_mLSP325, 
+#SMS_T2tt_2J_mStop425_mLSP325, 
+#]
 
 #-------- SEQUENCE
 
 sequence = cfg.Sequence(susyCoreSequence+[
+                LHEAna,
 		ttHEventAna,
-		#ttHSTSkimmer,
+		ttHSTSkimmer,
 		#ttHReclusterJets,
 		hbheFilterAna,
 		treeProducer,
 		])
 
 
+
+
+
+
 #-------- HOW TO RUN
+test = 1
 #test = 'MC'
-test = 'data'
+#test = 'data'
 
 if test==1:
 	# test a single component, using a single thread.
-	comp = TTJets
+	comp = WJetsToLNu_HT800to1200 #WJetsToLNu_HT2500toInf #TTJets
 	comp.files = comp.files[:1]
 	selectedComponents = [comp]
 	comp.splitFactor = 1
@@ -194,7 +222,7 @@ elif test==2:
 elif test==3:
 	# run all components (1 thread per component).
 	for comp in selectedComponents:
-		comp.fineSplitFactor = 5
+#		comp.fineSplitFactor = 5
 		comp.splitFactor = len(comp.files)
 
 elif test=='MC':
