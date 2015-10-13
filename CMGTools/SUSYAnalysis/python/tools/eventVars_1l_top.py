@@ -317,14 +317,15 @@ class EventVars1L_Top:
             TopVarsTopPtMin      .append(minValueForIdxList(TopPt     , [ids[0] for ids in ThreeBestBTags]))
             TopVarsTopEtMin      .append(minValueForIdxList(TopEt     , [ids[0] for ids in ThreeBestBTags]))
 
-            mcMatchIdLep = tightLeps[0].mcMatchId
             iCorrectJet=-999
             correctJetBTagged = False
-            if abs(mcMatchIdLep)==6:
-                for i,jet in  enumerate(centralJet30):
-                    if abs(jet.mcFlavour)==5 and jet.mcMatchId==mcMatchIdLep:
-                        iCorrectJet=i
-                        if jet.btagCSV>bTagWP: correctJetBTagged=True
+            if not event.isData:
+                mcMatchIdLep = tightLeps[0].mcMatchId
+                if abs(mcMatchIdLep)==6:
+                    for i,jet in  enumerate(centralJet30):
+                        if abs(jet.mcFlavour)==5 and jet.mcMatchId==mcMatchIdLep:
+                            iCorrectJet=i
+                            if jet.btagCSV>bTagWP: correctJetBTagged=True
 
             #3: value for the correct b-jet (i.e. the one matching the lepton)
             TopVarsMTbnuMin      .append(MTbnu     [iCorrectJet] if iCorrectJet>-999 else -999)

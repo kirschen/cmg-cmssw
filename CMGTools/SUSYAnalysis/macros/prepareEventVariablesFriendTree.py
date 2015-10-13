@@ -14,12 +14,13 @@ MODULES.append( ('1l_Triggers', EventVars1L_triggers()) )
 from CMGTools.SUSYAnalysis.tools.eventVars_1l_signal import EventVars1L_signal
 MODULES.append( ('1l_Signal', EventVars1L_signal()) )
 
-
-'''
 from CMGTools.SUSYAnalysis.tools.eventVars_1l_bkgDilep import EventVars1L_bkgDilep
 MODULES.append( ('1l_bkgDilep', EventVars1L_bkgDilep()) )
+
 from CMGTools.SUSYAnalysis.tools.eventVars_1l_top import EventVars1L_Top
 MODULES.append( ('1l_TopVars', EventVars1L_Top()) )
+
+'''
 #from CMGTools.SUSYAnalysis.tools.eventVars_1l_extra import EventVars1L_extra
 #MODULES.append( ('1l_Extra', EventVars1L_extra()) )
 from CMGTools.SUSYAnalysis.tools.resolvedTopTagVars_1l import resolvedTopTagVars1l
