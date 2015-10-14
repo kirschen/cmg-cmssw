@@ -1,17 +1,17 @@
 from CMGTools.TTHAnalysis.treeReAnalyzer import *
-from ROOT import TLorentzVector, TVector2, std, TRandom2
+from ROOT import TLorentzVector, std, TRandom2, TVector2
 import ROOT
-import time
+from copy import deepcopy
+#import time
 import itertools
-import PhysicsTools.Heppy.loadlibs
 import array
-import operator
+#import operator
 
 
-def minValueForIdxList(values,idxlist):
-    cleanedValueList = [val for i,val in enumerate(values) if i in idxlist]
-    if len(cleanedValueList)>0: return min(cleanedValueList)
-    else: return -999
+#def minValueForIdxList(values,idxlist):
+#    cleanedValueList = [val for i,val in enumerate(values) if i in idxlist]
+#    if len(cleanedValueList)>0: return min(cleanedValueList)
+#    else: return -999
 
 
 class EventVars1L_bkgDilep:
@@ -119,7 +119,10 @@ class EventVars1L_bkgDilep:
                 LepToKeep2D = TVector2(tightLeps[lepToKeep].p4().Px(), tightLeps[lepToKeep].p4().Py())
 
                 Met2D_AddFull = Met2D + LepToDiscard2D
-                Met2D_AddThird = Met2D + (1/3.*LepToDiscard2D)
+                LepToDiscard2DOneThird = deepcopy(LepToDiscard2D)
+                LepToDiscard2DOneThird.Set(1./3 * LepToDiscard2D.Px(), 1./3* LepToDiscard2D.Py())
+#                print LepToDiscard2DOneThird.Mod(), LepToDiscard2D.Mod()
+                Met2D_AddThird = Met2D + LepToDiscard2DOneThird
                 LepToKeep_pt = LepToKeep2D.Mod()
                 
                 recoWp4 = LepToKeep2D + Met2D
@@ -157,14 +160,21 @@ class EventVars1L_bkgDilep:
 
 if __name__ == '__main__':
     from sys import argv
+    from CMGTools.SUSYAnalysis.tools.eventVars_1l_base import *
+    from CMGTools.SUSYAnalysis.tools.eventVars_1l_top import *
     file = ROOT.TFile(argv[1])
     tree = file.Get("tree")
+    tree.vectorTree = True
     class Tester(Module):
         def __init__(self, name):
             Module.__init__(self,name,None)
             self.sf = EventVars1L_bkgDilep()
+            self.sfbase = EventVars1L_base()
+            self.sftop = EventVars1L_Top()
         def analyze(self,ev):
             print "\nrun %6d lumi %4d event %d: leps %d" % (ev.run, ev.lumi, ev.evt, ev.nLepGood)
-            print self.sf(ev,{})
+#            print self.sf(ev,{})
+#            print self.sf(ev,self.sftop(ev,self.sfbase(ev,{})))
+            print self.sf(ev,self.sfbase(ev,{}))
     el = EventLoop([ Tester("tester") ])
     el.loop([tree], maxEvents = 50)

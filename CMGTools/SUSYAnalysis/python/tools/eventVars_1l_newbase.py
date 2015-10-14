@@ -125,7 +125,8 @@ class EventVars1L_base:
             'nLep', 'nVeto',
             'nEl','nMu',
             ## selected == tight leps
-            'nTightLeps', 'nTightEl','nTightMu',
+            'nTightEl','nTightMu',
+            ("nTightLeps","I"),("tightLepsIdx","I",10,"nTightLeps"),
             #("tightLeps_DescFlag","I",10,"nTightLeps"),
             'Lep_pdgId','Lep_pt','Lep_eta','Lep_phi','Lep_Idx','Lep_relIso','Lep_miniIso',
             'Selected', # selected (tight) or anti-selected lepton
@@ -138,6 +139,8 @@ class EventVars1L_base:
             'HT','nJet','nBJet',
             "htJet30j", "htJet30ja",
             'Jet1_pt','Jet2_pt',
+            ("nCentralJet30","I"),("centralJet30idx","I",100,"nCentralJet30"),
+            ("nBJetMedium30","I"),("BJetMedium30idx","I",50,"nBJetMedium30"),
             ## top tags
             "nHighPtTopTag", "nHighPtTopTagPlusTau23",
             ## special Vars
@@ -349,6 +352,7 @@ class EventVars1L_base:
             vetoLeps = selectedVetoLeps
 
             ret['nTightLeps'] = len(tightLeps)
+            ret['tightLepsIdx'] = tightLepsIdx
             ret['nTightMu'] = sum([ abs(lep.pdgId) == 13 for lep in tightLeps])
             ret['nTightEl'] = sum([ abs(lep.pdgId) == 11 for lep in tightLeps])
 
@@ -361,6 +365,7 @@ class EventVars1L_base:
             vetoLeps = antiVetoLeps
 
             ret['nTightLeps'] = 0
+            ret['tightLepsIdx'] = []
             ret['nTightMu'] = 0
             ret['nTightEl'] = 0
 
@@ -373,6 +378,7 @@ class EventVars1L_base:
             vetoLeps = []
 
             ret['nTightLeps'] = 0
+            ret['tightLepsIdx'] = []
             ret['nTightMu'] = 0
             ret['nTightEl'] = 0
 
@@ -414,10 +420,14 @@ class EventVars1L_base:
 
         ### JETS
         centralJet30 = []
-
+        centralJet30idx = []
         for i,j in enumerate(jets):
             if j.pt>30 and abs(j.eta)<centralEta:
                 centralJet30.append(j)
+                centralJet30idx.append(i)
+
+        ret['nCentralJet30']   = len(centralJet30)
+        ret['centralJet30idx'] = centralJet30idx
 
         nJetC = len(centralJet30)
         ret['nJet']   = nJetC
@@ -441,10 +451,16 @@ class EventVars1L_base:
         btagWP = btag_MediumWP
 
         BJetMedium30 = []
+        BJetMedium30idx = []
 
         for i,j in enumerate(centralJet30):
-            if j.btagCSV > btagWP:
+            if j.btagCSV>btagWP:
                 BJetMedium30.append(j)
+                BJetMedium30idx.append(centralJet30idx[i])
+
+        ret['nBJetMedium30']    = len(BJetMedium30)
+        ret['BJetMedium30idx']  = BJetMedium30idx
+
 
         ret['nBJet']   = len(BJetMedium30)
 
