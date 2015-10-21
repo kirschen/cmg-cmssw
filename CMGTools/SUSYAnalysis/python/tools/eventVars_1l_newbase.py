@@ -149,7 +149,7 @@ class EventVars1L_base:
             # no HF stuff
             'METNoHF', 'LTNoHF', 'dPhiNoHF',
             ## jets
-            'HT','nJet','nBJet',
+            'HT','nJets','nBJet',
             "htJet30j", "htJet30ja",
             'Jet1_pt','Jet2_pt',
             ("nCentralJet30","I"),("centralJet30idx","I",100,"nCentralJet30"),
@@ -448,7 +448,7 @@ class EventVars1L_base:
         ret['centralJet30idx'] = centralJet30idx
 
         nJetC = len(centralJet30)
-        ret['nJet']   = nJetC
+        ret['nJets']   = nJetC
 
         if nJetC > 0:
             ret['Jet1_pt'] = centralJet30[0].pt
