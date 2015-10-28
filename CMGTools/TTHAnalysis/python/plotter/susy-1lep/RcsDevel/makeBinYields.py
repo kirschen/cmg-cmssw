@@ -9,7 +9,8 @@ from math import hypot
 #Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/"
 #FTdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/Friends/"
 Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
-FTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID"
+#FTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID"
+FTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/JustPTReweighting"
 #FTdir = "FriendTrees_MC/"
 
 #Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/Links/Spring15_RunB_50ns/"

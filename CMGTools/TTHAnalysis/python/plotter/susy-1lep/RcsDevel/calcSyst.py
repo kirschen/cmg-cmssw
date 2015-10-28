@@ -78,13 +78,14 @@ def getSystHist(tfile, hname, syst = "Xsec"):
 def makeSystHists(fileList):
 
     # filter
-    #fileList = [fname for fname in fileList if 'NB3' not in fname]
+    fileList = [fname for fname in fileList if 'NB3' not in fname]
 
-    hnames = ["T1tttt_Scan"] # process name
-    #hnames = getHnames(fileList[0],'SR_MB') # get process names from file
-    #print 'Found these hists:', hnames
+    #hnames = ["T1tttt_Scan"] # process name
+    hnames = getHnames(fileList[0],'SR_MB') # get process names from file
+    print 'Found these hists:', hnames
 
-    systNames = ["Xsec"]
+#    systNames = ["Xsec"]
+    systNames = ["TopPt"]
 
     bindirs =  ['SR_MB','CR_MB','SR_SB','CR_SB']
 
