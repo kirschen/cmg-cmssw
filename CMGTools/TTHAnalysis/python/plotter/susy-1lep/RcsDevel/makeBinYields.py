@@ -8,15 +8,10 @@ from math import hypot
 # trees
 #Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/"
 #FTdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/Friends/"
-#Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
-Tdir = "/nfs/dust/cms/user/clseitz/1LepSUS/CMG74/DESY-SUSY/CMSSW_7_4_12/src/CMGTools/SUSYAnalysis/macros/Signal"
-FTdir = "/nfs/dust/cms/user/clseitz/1LepSUS/CMG74/DESY-SUSY/CMSSW_7_4_12/src/CMGTools/TTHAnalysis/python/plotter/susy-1lep/RcsDevel/Flinks"
-
+Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
 #FTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID"
-#FTdir = "FriendTrees_MC/"
+FTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/JustPTReweighting"
 
-#Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/Links/Spring15_RunB_50ns/"
-#FTdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/Links/Spring15_RunB_50ns/Friends/"
 
 def addOptions(options):
 
