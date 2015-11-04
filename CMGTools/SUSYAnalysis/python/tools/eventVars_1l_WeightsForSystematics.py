@@ -12,7 +12,6 @@ class EventVars1LWeightsForSystematics:
 
     def __call__(self,event,keyvals):
         #
-        genParts = [l for l in Collection(event,"GenPart","nGenPart")]
 
         GenTopPt = -999
         GenTopIdx = -999
@@ -23,29 +22,35 @@ class EventVars1LWeightsForSystematics:
         GenTTBarWeight = 1.
 
         nGenTops = 0
-        for i_part, genPart in enumerate(genParts):
-            if genPart.pdgId ==  6:     
-                GenTopPt = genPart.pt
-                GenTopIdx = i_part
-            if genPart.pdgId == -6: 
-                GenAntiTopPt = genPart.pt
-                GenAntiTopIdx = i_part
-            if abs(genPart.pdgId) ==  6: nGenTops+=1
+        if not event.isData:
+            genParts = [l for l in Collection(event,"GenPart","nGenPart")]
+            for i_part, genPart in enumerate(genParts):
+                if genPart.pdgId ==  6:     
+                    GenTopPt = genPart.pt
+                    GenTopIdx = i_part
+                if genPart.pdgId == -6: 
+                    GenAntiTopPt = genPart.pt
+                    GenAntiTopIdx = i_part
+                if abs(genPart.pdgId) ==  6: nGenTops+=1
 
-        if GenTopPt!=-999 and GenAntiTopPt!=-999 and nGenTops==2:
-            SFTop     = exp(0.156    -0.00137*GenTopPt    )
-            SFAntiTop = exp(0.156    -0.00137*GenAntiTopPt)
-            TopPtWeight = sqrt(SFTop*SFAntiTop)
-            if TopPtWeight<0.5: TopPtWeight=0.5
+                if GenTopPt!=-999 and GenAntiTopPt!=-999 and nGenTops==2:
+                    SFTop     = exp(0.156    -0.00137*GenTopPt    )
+                    SFAntiTop = exp(0.156    -0.00137*GenAntiTopPt)
+                    TopPtWeight = sqrt(SFTop*SFAntiTop)
+                    if TopPtWeight<0.5: TopPtWeight=0.5
             
-            if GenAntiTopIdx!=-999 and GenTopIdx!=-999:
-                GenTTBarp4 = genParts[GenTopIdx].p4()+ genParts[GenAntiTopIdx].p4()
-                GenTTBarPt = GenTTBarp4.Pt()
-                if GenTTBarPt>120: GenTTBarWeight= 0.95
-                if GenTTBarPt>150: GenTTBarWeight= 0.90
-                if GenTTBarPt>250: GenTTBarWeight= 0.80
-                if GenTTBarPt>400: GenTTBarWeight= 0.70
-            
+                if GenAntiTopIdx!=-999 and GenTopIdx!=-999:
+                    GenTTBarp4 = genParts[GenTopIdx].p4()+ genParts[GenAntiTopIdx].p4()
+                    GenTTBarPt = GenTTBarp4.Pt()
+                    if GenTTBarPt>120: GenTTBarWeight= 0.95
+                    if GenTTBarPt>150: GenTTBarWeight= 0.90
+                    if GenTTBarPt>250: GenTTBarWeight= 0.80
+                    if GenTTBarPt>400: GenTTBarWeight= 0.70
+#markus proposal for njet-reweighting           
+#The level of agreement is important to us. We could reweight top events by 1.05 per jet that does not come from the top and compare again the distributions (changes yield ~ 27% for 5 jets not from the top). If that is more that the difference we see in data we can propose this as an uncertainty.
+
+
+
         ret    =  { 'GenTopPt'   : GenTopPt } #initialize the dictionary with a first entry
         ret['GenAntiTopPt'] = GenAntiTopPt
         ret['TopPtWeight']  = TopPtWeight
