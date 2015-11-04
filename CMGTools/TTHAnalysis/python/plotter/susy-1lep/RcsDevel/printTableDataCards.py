@@ -173,7 +173,7 @@ def printBinnedTable(yieldsList, yieldsSig, printSource, name):
     f.write('\\end{table} \n')   
     return
 
-def printBinnedRcsKappaTable(yieldsList, printSource, name):
+def printBinnedRcsKappaTable(yieldsList, printSource, name, signedPercentage=False):
     precision = 4
     f = open(name + '.tex','w')
     f.write('\\begin{table}[ht] \n ')
@@ -207,12 +207,18 @@ def printBinnedRcsKappaTable(yieldsList, printSource, name):
         if LT != LT0:
             f.write(('\\cline{1-%s} ' + LT + ' & ' + HT + ' & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin) % (nCol))
         if LT == LT0 and HT != HT0:
-            f.write(('\\cline{2-%s}  & ' + HT + ' & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin) % (nCol))
+            f.write(('\\cline{2-%s}  & ' + HT + ' & ' + B + ' & ' + LTbin +', ' + HTbin + ', ' + Bbin) % (nCol))
         elif LT == LT0 and HT == HT0:
-            f.write('  &  & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin)
+            f.write('  &  & ' + B + ' & ' + LTbin +', ' + HTbin + ', ' + Bbin)
         for source, yields in zip(SourceNames, yieldsList):
             print source
-            f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % yields[bin][source])                
+            if signedPercentage:
+                print yields[bin][source]
+                markRed = False
+                if abs((yields[bin][source][0]-1)*100.) >20: markRed = True
+                f.write((' & \\textcolor{red}{%+.2f\%%} ' if markRed else ' & %+.2f\%% ') % ((yields[bin][source][0]-1)*100.) )                
+            else:
+                f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % yields[bin][source])                
 
         f.write(' \\\ \n')
 
@@ -315,17 +321,28 @@ if __name__ == "__main__":
         print "Will stop, give input Dir"
         quit()
 
+    doKappaChangeTables = False
+    if len(sys.argv) > 3 and "KappaChange" in sys.argv[3]:
+        doKappaChangeTables=True
+        print "Will print out kappa change tables as well" 
+
     cardDirectory = os.path.abspath(cardDirectory)
     cardDirName = os.path.basename(cardDirectory)
 
     print 'Using cards from', cardDirName
     inDir = cardDirectory
     cardFnames = glob.glob(inDir+'/*/*68*.root')
+    cardDnames = glob.glob(inDir+'/*/')
+    strippedDirNames = [os.path.basename(name.rstrip('/')) for name in cardDnames]
+    strippedDirNames.remove("merged") #this is the default and does not need to be printed for kappa-change table
+    print strippedDirNames
+    print [os.path.basename(name) for name in cardFnames]
     cardFnames9 = glob.glob(inDir+'/*/*9i*.root')
     inDirSig = cardDirectorySig
     cardFnamesSig = glob.glob(inDirSig+'/*/*.root')
 
     if 1==1:
+        
         sigYields = getYieldDict(cardFnamesSig,"SR_MB", "T1tttt_Scan", "lep")
         sigYieldsCR = getYieldDict(cardFnamesSig,"CR_MB", "T1tttt_Scan", "lep")
         sigYieldsSB = getYieldDict(cardFnamesSig,"SR_SB", "T1tttt_Scan", "lep")
@@ -345,14 +362,29 @@ if __name__ == "__main__":
         #tableList = ['TT','TTincl']
         for name in tableList:
             printBinnedRcsKappaTable((dictRcs_MB, dictRcs_SB, dictKappa),  [name],'Rcs_table_'+name)
+
+        if doKappaChangeTables:        
+            dictsKappaChange =[]
+            for strippedDir in strippedDirNames:
+                cardFnamesStripped = glob.glob(inDir+'/'+strippedDir+'/*68*.root')
+                dictsKappaChange.append(getYieldDict(cardFnamesStripped,"KappaChange","","lep"))
+            for name in tableList:
+                printBinnedRcsKappaTable(dictsKappaChange,  [name],'KappaChange_table_'+name, True)
+
+            dictsKappaChange =[]
+            for strippedDir in strippedDirNames:
+                cardFnamesStripped = glob.glob(inDir+'/'+strippedDir+'/*9i*.root')
+                dictsKappaChange.append(getYieldDict(cardFnamesStripped,"KappaChange","","lep"))
+            for name in tableList:
+                printBinnedRcsKappaTable(dictsKappaChange,  [name],'KappaChange9_table_'+name, True)
         
+
 
         sigYields9 = getYieldDict(cardFnamesSig,"SR_MB", "T1tttt_Scan", "lep")
         sigYields9CR = getYieldDict(cardFnamesSig,"CR_MB", "T1tttt_Scan", "lep")
         sigYields9SB = getYieldDict(cardFnamesSig,"SR_SB", "T1tttt_Scan", "lep")
         sigYields9CR_SB = getYieldDict(cardFnamesSig,"CR_SB", "T1tttt_Scan", "lep")
         mcYields9 = getYieldDict(cardFnames9,"SR_MB","","lep")
-        print sigYields9
         printBinnedTable((mcYields9,), sigYields9, [],'SR_table_9')
         printBinnedTable((getYieldDict(cardFnames9,"CR_MB","","lep") ,), sigYields9CR, [],'CR_table_9')
         printBinnedTable((getYieldDict(cardFnames9,"CR_SB","","lep") ,), sigYields9SB, [],'CR_SBtable_9')
