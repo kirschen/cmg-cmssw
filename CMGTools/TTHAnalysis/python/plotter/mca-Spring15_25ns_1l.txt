@@ -46,6 +46,11 @@ DY       : DYJetsToLL_M50_HT400to600 :  xsec*1.0; Label="DY+jets", FillColor=ROO
 DY       : DYJetsToLL_M50_HT600toInf :  xsec*1.0; Label="DY+jets", FillColor=ROOT.kRed-6, NormSystematic=0.5
 
 # DATA
-data: SingleElectron_Run2015D
-data: SingleMuon_Run2015D
+#data: SingleElectron_Run2015D
+#data: SingleMuon_Run2015D
 
+data: SingleElectron_Run2015D_05Oct
+data: SingleElectron_Run2015D_v4
+
+data: SingleMuon_Run2015D_05Oct
+data: SingleMuon_Run2015D_v4
