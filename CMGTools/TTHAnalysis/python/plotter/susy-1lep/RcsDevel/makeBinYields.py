@@ -9,6 +9,11 @@ from math import hypot
 Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
 mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID_PUave70mb"
 dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/Data/ele_CBID_1p2fb"
+
+Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns_CBID"
+mcFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriendsDiLepton"
+dataFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriendsDiLepton"
+
 #FTdir = "FriendTrees_MC/"
 
 
@@ -46,7 +51,8 @@ def addOptions(options):
     elif options.grid:
         options.var =  "Selected:(nEl-nMu)"
         #options.bins = "2,-1.5,1.5,2,-1.5,1.5"
-        options.bins = "3,-1.5,1.5,2,-1.5,1.5"
+#        options.bins = "3,-1.5,1.5,2,-1.5,1.5"
+        options.bins = "4,-2.5,3.3333333,2,-1.5,1.5"#to cover dilept. as well will have to write content of 0 bin to 4th bin... to also cover for mixed case #CAVEAT/TOFIX: IGNORING ELE/MU mixed case for now (overwritten later with ele+mu)
 
     elif options.plot:
 
@@ -68,8 +74,14 @@ def makeLepYieldGrid(hist):
         ymuErr = hist.GetBinError(1,ybin)
         yeleErr = hist.GetBinError(3,ybin)
 
-        ylep = ymu+yele
-        ylepErr = hypot(ymuErr,yeleErr)
+        yDLMix = hist.GetBinContent(2,ybin)
+        yDLMixErr = hist.GetBinError(2,ybin)
+
+        ylep = ymu+yele+yDLMix
+        ylepErr = hypot(yDLMixErr,hypot(ymuErr,yeleErr))
+
+        hist.SetBinContent(4,ybin,yDLMix)
+        hist.SetBinError(4,ybin,yDLMixErr)
 
         hist.SetBinContent(2,ybin,ylep)
         hist.SetBinError(2,ybin,ylepErr)
@@ -79,6 +91,7 @@ def makeLepYieldGrid(hist):
             print 'Mu yields:\t', ymu, ymuErr
             print 'Ele yields:\t', yele, yeleErr
             print 'Mu+Ele yields:\t', ylep, ylepErr
+            print 'Mixed case (non-zero for dilepton only) yields:\t', yDLMix, yDLMixErr
 
 def makeUpHist(hist, options):
 
@@ -116,6 +129,11 @@ def writeYields(options):
     mca  = MCAnalysis(options.mcaFile,options)
     cuts = CutsFile(options.cutFile,options)
 
+    if options.bin.endswith("_DLCR"):
+        cuts = CutsFile(options.cutFileDL,options)
+
+    print options.bin, cuts.allCuts()
+        
     # make bin name and outdir names
     binname = options.bin
     if options.outdir == None:
@@ -123,10 +141,13 @@ def writeYields(options):
     else:
         outdir = options.outdir
 
+
+
     # get report
     if options.pretend:
         report = []
     else:
+        if options.verbose > 1: print cuts.allCuts()
         report = mca.getPlotsRaw("x", options.var, options.bins, cuts.allCuts(), nodata=options.asimov)
 
     # add sum MC entry
@@ -224,6 +245,7 @@ if __name__ == "__main__":
     # extra options for tty
     parser.add_option("--mca", dest="mcaFile",default="mca-Spring15.txt",help="MCA sample list")
     parser.add_option("--cuts", dest="cutFile",default="trig_base.txt",help="Baseline cuts file")
+    parser.add_option("--cutsDL", dest="cutFileDL",default="trig_DLbase.txt",help="Baseline cuts file for dilepton CR")
     parser.add_option("--binname", dest="binname",default="test",help="Binname")
 
     # options for cards
@@ -268,6 +290,10 @@ if __name__ == "__main__":
     
     cDict.update(cutDictSRf9)
     cDict.update(cutDictCRf9)
+
+
+    cDict.update(cutDictDLCR)
+    cDict.update(cutDictDLCRf9)
     
     #cDict = cutQCD #QCD
     #cDict = cutIncl #Inclusive
@@ -321,6 +347,16 @@ if __name__ == "__main__":
             print
         else:
             print '.',
+        if options.verbose > 2:
+            print 80*'#'
+            for idx,bin in enumerate(binList):
+                print 'Processing chunk #%i/%i' %(idx,len(binList))
+                print '%s with cuts' %(bin),
+                cuts = cDict[bin]
+                for cut in cuts:
+                    print cut[2],'+',
+                print
+ 
         writeYields(options)
     else:
         print "Nothing to process!"
