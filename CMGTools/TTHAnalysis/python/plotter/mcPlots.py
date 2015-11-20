@@ -444,7 +444,7 @@ def doRatioHists(pspec,pmap,total,totalSyst,maxRange,fitRatio=None):
 #        unity0.Draw("E2 SAME");
 #    else:
 #        if total != totalSyst: unity0.Draw("E2 SAME");
-    unity.GetYaxis().SetRangeUser(rmin,rmax);
+    unity.GetYaxis().SetRangeUser(pspec.getOption('RMin',rmin), pspec.getOption('RMax',rmax))
     unity.GetXaxis().SetTitleSize(0.14)
     unity.GetYaxis().SetTitleSize(0.14)
     unity.GetXaxis().SetLabelSize(0.11)
