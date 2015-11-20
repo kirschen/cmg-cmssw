@@ -144,9 +144,11 @@ class EventVars1L_base:
             'nLep', 'nVeto',
             'nEl','nMu',
             ## selected == tight leps
-            'nTightLeps', 'nTightEl','nTightMu',
+            ("nTightLeps","I"),
+            'nTightEl','nTightMu',
             #("tightLeps_DescFlag","I",10,"nTightLeps"),
-            'Lep_pdgId','Lep_pt','Lep_eta','Lep_phi','Lep_Idx','Lep_relIso','Lep_miniIso',
+            'Lep_pdgId','Lep_pt','Lep_eta','Lep_phi','Lep_Idx','Lep_relIso','Lep_miniIso',#this saves only the information of the leading lepton
+            ("tightLepsIdx","I",10,"nTightLeps"),
             'Selected', # selected (tight) or anti-selected lepton
             ## MET
             'MET','LT','ST',
@@ -154,9 +156,11 @@ class EventVars1L_base:
             # no HF stuff
             'METNoHF', 'LTNoHF', 'dPhiNoHF',
             ## jets
-            'HT','nJets','nJets30','nBJet',
+            ("nJets30","I"), ("nBJet","I"), 
+            'HT','nJets',
             "htJet30j", "htJet30ja",
             'Jet1_pt','Jet2_pt',
+            ("Jets30Idx","I",100,"nJets30"),("BJetIdx","I",50,"nBJet"),
             ## top tags
             "nHighPtTopTag", "nHighPtTopTagPlusTau23",
             ## special Vars
@@ -188,8 +192,8 @@ class EventVars1L_base:
         # -- needs to be adjusted manually
         ##############################
         if event.isData:
-            ret['PD_JetHT'] = 1
-            ret['PD_SingleEle'] = 0
+            ret['PD_JetHT'] = 0
+            ret['PD_SingleEle'] = 1
             ret['PD_SingleMu'] = 0
         else:
             ret['PD_JetHT'] = 0
@@ -406,6 +410,9 @@ class EventVars1L_base:
         ret['nLep'] = len(tightLeps)
         ret['nVeto'] = len(vetoLeps)
 
+        # store tight lepton indices for later processing steps
+        ret['tightLepsIdx'] = tightLepsIdx
+
         # get number of tight el and mu
         tightEl = [lep for lep in tightLeps if abs(lep.pdgId) == 11]
         tightMu = [lep for lep in tightLeps if abs(lep.pdgId) == 13]
@@ -438,14 +445,17 @@ class EventVars1L_base:
 
         ### JETS
         centralJet30 = []
+        centralJet30idx = []
 
         for i,j in enumerate(jets):
             if j.pt>30 and abs(j.eta)<centralEta:
                 centralJet30.append(j)
+                centralJet30idx.append(i)
 
         nJetC = len(centralJet30)
         ret['nJets']   = nJetC
         ret['nJets30']   = nJetC
+        ret['Jets30Idx'] = centralJet30idx
 
         if nJetC > 0:
             ret['Jet1_pt'] = centralJet30[0].pt
@@ -466,12 +476,15 @@ class EventVars1L_base:
         btagWP = btag_MediumWP
 
         BJetMedium30 = []
+        BJetMedium30idx = []
 
         for i,j in enumerate(centralJet30):
             if j.btagCSV > btagWP:
                 BJetMedium30.append(j)
+                BJetMedium30idx.append(centralJet30idx[i])
 
         ret['nBJet']   = len(BJetMedium30)
+        ret['BJetIdx']  = BJetMedium30idx
 
         # deltaPhi between the (single) lepton and the reconstructed W (lep + MET)
         dPhiLepW = -999 # set default value to -999 to spot "empty" entries
