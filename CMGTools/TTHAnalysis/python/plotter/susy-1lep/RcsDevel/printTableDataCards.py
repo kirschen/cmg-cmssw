@@ -108,6 +108,30 @@ def getSystDict(cardFnames, region, sig = "", lep = "lep", uncert = "default"):
                 yields[binname] = sourceYield
     return yields
 
+def divideTwoYieldDicts(yieldDict1, yieldDict2, correlated=False ):
+    #return dict = yieldDict1/yieldDict2
+    if not correlated:
+        print "implemented"
+        assert len(yieldDict1)==len(yieldDict2), "dictionaries have different size"
+
+        dividedDict = {}
+        for bin, v1 in yieldDict1.iteritems():
+            v2 = yieldDict2[bin]
+            perProcessDict = {}
+            for process, yieldtupel1 in v1.iteritems():
+                yieldtupel2 = v2[process]
+                print process, yieldtupel1, yieldtupel2
+                if yieldtupel2[0] !=0:
+                    perProcessDict[process] = (yieldtupel1[0]/yieldtupel2[0], pow(yieldtupel1[1]/yieldtupel2[0],2) +pow(yieldtupel1[0]/pow(yieldtupel2[0],2) *yieldtupel2[1] ,2))
+                else:
+                    perProcessDict[process] = (-999,0)
+                print process, yieldtupel1, yieldtupel2, perProcessDict[process]
+            dividedDict[bin] = perProcessDict
+#        (yieldsSig[bin][source][0] *  factor[source], yieldsSig[bin][source][1]        
+        
+        return dividedDict
+    else:
+        print "not implemented yet, no return defined"
 
 def printBinnedTable(yieldsList, yieldsSig, printSource, name):
     benchmark = (1200,750)
@@ -228,8 +252,8 @@ def printBinnedRcsKappaTable(yieldsList, printSource, name, signedPercentage=Fal
 
 
 
-def printAnyBinnedTable(yieldsList, name):
-    precision = 4
+def printAnyBinnedTable(yieldsList, name, precision=4):
+    print "starting test"
     f = open(name + '.tex','w')
     f.write('\\begin{table}[ht] \n ')
     binNames = sorted(yieldsList[0][0].keys())
@@ -396,6 +420,48 @@ if __name__ == "__main__":
     cardFnamesSig = glob.glob(inDirSig+'/*/*.root')
 
     if 1==1:
+
+        SR_MBDict = getYieldDict(cardFnames,  "SR_MB","","lep")
+        CR_MBDict = getYieldDict(cardFnames,  "CR_MB","","lep")
+        DLCR_MBDict = getYieldDict(cardFnames,  "DLCR_MB","","lep")
+        CRSR_MBDict = divideTwoYieldDicts(CR_MBDict, SR_MBDict, correlated=False )
+        DLCRSR_MBDict = divideTwoYieldDicts(DLCR_MBDict, SR_MBDict, correlated=False )
+
+        SR_MBYields   = [ SR_MBDict,   [('EWK','EWK')] ]
+        SRDiLep_MBYields   = [ SR_MBDict,   [('TTdiLep','TTdiLep')] ]
+        CR_MBYields   = [ CR_MBDict,   [('EWK','EWK')] ]
+        DLCR_MBYields = [ DLCR_MBDict, [('EWK','EWK')] ]
+        DLCRDiLep_MBYields = [ DLCR_MBDict, [('TTdiLep','TTdiLep')] ]
+        CRSR_MBYields     = [ CRSR_MBDict,     [('EWK','EWK')] ]
+        DLCRSR_MBYields   = [ DLCRSR_MBDict,   [('EWK','EWK')] ]
+        DLCRSRDiLep_MBYields   = [ DLCRSR_MBDict,   [('TTdiLep','TTdiLep')] ]
+
+        printAnyBinnedTable((SR_MBYields, SRDiLep_MBYields, CR_MBYields, DLCR_MBYields, DLCRDiLep_MBYields, CRSR_MBYields, DLCRSR_MBYields, DLCRSRDiLep_MBYields),'CRSize', precision=1)
+
+
+
+
+##########
+        SR_MBDict = getYieldDict(cardFnames9,  "SR_MB","","lep")
+        CR_MBDict = getYieldDict(cardFnames9,  "CR_MB","","lep")
+        DLCR_MBDict = getYieldDict(cardFnames9,  "DLCR_MB","","lep")
+        CRSR_MBDict = divideTwoYieldDicts(CR_MBDict, SR_MBDict, correlated=False )
+        DLCRSR_MBDict = divideTwoYieldDicts(DLCR_MBDict, SR_MBDict, correlated=False )
+
+        SR_MBYields   = [ SR_MBDict,   [('EWK','EWK')] ]
+        SRDiLep_MBYields   = [ SR_MBDict,   [('TTdiLep','TTdiLep')] ]
+        CR_MBYields   = [ CR_MBDict,   [('EWK','EWK')] ]
+        DLCR_MBYields = [ DLCR_MBDict, [('EWK','EWK')] ]
+        DLCRDiLep_MBYields = [ DLCR_MBDict, [('TTdiLep','TTdiLep')] ]
+        CRSR_MBYields     = [ CRSR_MBDict,     [('EWK','EWK')] ]
+        DLCRSR_MBYields   = [ DLCRSR_MBDict,   [('EWK','EWK')] ]
+        DLCRSRDiLep_MBYields   = [ DLCRSR_MBDict,   [('TTdiLep','TTdiLep')] ]
+
+        printAnyBinnedTable((SR_MBYields, SRDiLep_MBYields, CR_MBYields, DLCR_MBYields, DLCRDiLep_MBYields, CRSR_MBYields, DLCRSR_MBYields, DLCRSRDiLep_MBYields),'CRSize9', precision=1)
+
+
+
+
         sigYields = getYieldDict(cardFnamesSig,"SR_MB", "T1tttt_Scan", "lep")
         sigYieldsCR = getYieldDict(cardFnamesSig,"CR_MB", "T1tttt_Scan", "lep")
         sigYieldsSB = getYieldDict(cardFnamesSig,"SR_SB", "T1tttt_Scan", "lep")
