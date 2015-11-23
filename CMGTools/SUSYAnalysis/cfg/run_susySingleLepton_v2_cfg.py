@@ -16,6 +16,8 @@ lepAna.packedCandidates = 'packedPFCandidates'
 
 ## ELECTRONS
 lepAna.loose_electron_pt  = 10
+lepAna.inclusive_electron_pt  = 10
+
 eleID = "CBID"
 
 if eleID == "CBID":
@@ -24,10 +26,10 @@ if eleID == "CBID":
 	lepAna.loose_electron_dxy    = 999. # no cut since embedded in ID
 	lepAna.loose_electron_dz     = 999. # no cut since embedded in ID
 
-	lepAna.inclusive_electron_id  = "" # Keep no ID
-	lepAna.inclusive_electron_lostHits = 5. #
-	lepAna.inclusive_electron_dxy    = 0.5 # very loose (like in core)
-	lepAna.inclusive_electron_dz     = 1.0 # very loose (like in core)
+	lepAna.inclusive_electron_id  = "POG_Cuts_ID_SPRING15_25ns_v1_Veto_full5x5"
+	lepAna.inclusive_electron_lostHits = 999. # no cut since embedded in ID
+	lepAna.inclusive_electron_dxy    = 999. # no cut since embedded in ID
+	lepAna.inclusive_electron_dz     = 999. # no cut since embedded in ID
 
 elif eleID == "MVAID":
 	inclusive_electron_id  = "" # same as in susyCore
@@ -59,19 +61,27 @@ if isolation == "miniIso":
 	lepAna.miniIsolationVetoLeptons = None
 	lepAna.loose_muon_isoCut     = lambda muon : muon.miniRelIso < 0.4
 	lepAna.loose_electron_isoCut = lambda elec : elec.miniRelIso < 0.4
+	lepAna.inclusive_electron_isoCut = lambda elec : elec.miniRelIso < 0.4
 elif isolation == "relIso03":
 	# normal relIso03
 	lepAna.ele_isoCorr = "rhoArea"
 	lepAna.mu_isoCorr = "rhoArea"
 
 	lepAna.loose_electron_relIso = 0.5
+	lepAna.inclusive_electron_relIso = 0.5
 	lepAna.loose_muon_relIso = 0.5
 
+#########################
 # --- LEPTON SKIMMING ---
+#########################
+
+## OTHER LEPTON SKIMMER
+anyLepSkim.minLeptons = 0
+anyLepSkim.maxLeptons = 999
+
+# GOOD LEPTON SKIMMER -- FROM TTH (in Core already)
 ttHLepSkim.minLeptons = 0
 ttHLepSkim.maxLeptons = 999
-#LepSkim.idCut  = ""
-#LepSkim.ptCuts = []
 
 ####### JETS #########
 jetAna.jetPt = 30
@@ -83,15 +93,15 @@ if jetAna.cleanSelectedLeptons:	jetAna.minLepPt = 10
 
 ## JEC -- see preprocessor for MET
 #use default for 25 ns from susycore Summer15_25nsV2_MC
-#jetAna.mcGT = "Summer15_50nsV4_MC"
-#jetAna.dataGT = "Summer15_50nsV4_DATA"
+#jetAna.mcGT = "Summer15_25nsV5_MC"
+jetAna.dataGT = "Summer15_25nsV6_DATA"
 
 jetAna.doQG = True
 jetAna.smearJets = False #should be false in susycore, already
-jetAna.recalibrateJets = False # false for miniAOD v2!
+jetAna.recalibrateJets = True # false for miniAOD v2!
 
 ## MET -- check preprocessor
-metAna.recalibrate = False #should be false in susycore, already
+metAna.recalibrate = True #should be false in susycore, already
 
 ## Iso Track
 isoTrackAna.setOff=False
@@ -176,6 +186,9 @@ triggerFlagsAna.triggerBits = {
 
 #-------- SAMPLES AND TRIGGERS -----------
 
+# select components
+selectedComponents = []
+
 #-------- HOW TO RUN
 isData = True # default, but will be overwritten below
 
@@ -193,21 +206,21 @@ if sample == "MC":
 	isData = False
 
 	# modify skim
-	ttHLepSkim.minLeptons = 1
+	anyLepSkim.minLeptons = 1
+	ttHLepSkim.minLeptons = 0
 
 	# -- new 74X samples
-#	from CMGTools.RootTools.samples.samples_13TeV_74X import *
+	#from CMGTools.RootTools.samples.samples_13TeV_74X import *
 	# -- samples at DESY
-	from CMGTools.SUSYAnalysis.samples.samples_13TeV_74X_desy import *
+	# MiniAODv1
+	#from CMGTools.SUSYAnalysis.samples.samples_13TeV_74X_desy import *
+	# MiniAODv2
+	from CMGTools.SUSYAnalysis.samples.samples_13TeV_RunIISpring15MiniAODv2_desy import *
 
-	# select components
-	selectedComponents = [
-		TTJets_LO_25ns,
-	]
-
+	selectedComponents = WJetsToLNuHT
 	if test==1:
 		# test a single component, using a single thread.
-		comp = TTJets_LO_25ns
+		comp = TTJets_LO
 		comp.files = comp.files[:1]
 		selectedComponents = [comp]
 		comp.splitFactor = 1
@@ -215,36 +228,35 @@ if sample == "MC":
 		# test all components (1 thread per component).
 		for comp in selectedComponents:
 			comp.splitFactor = 1
-			comp.fineSplitFactor = 2
+			comp.fineSplitFactor = 1
 			comp.files = comp.files[:1]
 	elif test==3:
 		# run all components (1 thread per component).
 		for comp in selectedComponents:
-			comp.fineSplitFactor = 2
+			comp.fineSplitFactor = 1
 			comp.splitFactor = len(comp.files)
 	elif test==0:
 		# PRODUCTION
 		# run on everything
 
-		#selectedComponents = mcSamples_Asymptotic50ns
-		#selectedComponents =[ TTJets_LO_25ns]#QCD_HT
-		#selectedComponents = [  TTJets_HT600to800 , TTJets_HT800to1200, TTJets_HT1200to2500, TTJets_HT2500toInf] + WJetsToLNuHT + QCD_HT + TTV + DYJetsM50HT
-		selectedComponents = [TTJets_SingleLeptonFromT, TTJets_SingleLeptonFromTbar]#, TTJets_DiLepton]
+		#selectedComponents =  QCDHT#[ TTJets_LO ]
+		selectedComponents =  SingleTop + DYJetsM50HT + TTV
 
 		for comp in selectedComponents:
-			comp.fineSplitFactor = 2
+			comp.fineSplitFactor = 1
 			comp.splitFactor = len(comp.files)
 
 elif sample == "data":
 
 	print 'Going to process DATA'
 
-	jecDBFile = '$CMSSW_BASE/src/CMGTools/RootTools/data/jec/Summer15_25nsV5_DATA.db'
-	jecEra    = 'Summer15_25nsV5_DATA'
+	jecDBFile = '$CMSSW_BASE/src/CMGTools/RootTools/data/jec/Summer15_25nsV6_DATA.db'
+	jecEra    = 'Summer15_25nsV6_DATA'
 
 	isData = True
 
-	# modify skim -- don't skim data!
+	# modify skim -- don't skim data on leptons!
+	anyLepSkim.minLeptons = 0
 	ttHLepSkim.minLeptons = 0
 
 	# central samples
@@ -256,7 +268,7 @@ elif sample == "data":
 	#selectedComponents = [ SingleElectron_Run2015D, SingleMuon_Run2015D ]
 
 	# MiniAOD V2
-	selectedComponents = [ SingleElectron_Run2015D_05Oct, SingleMuon_Run2015D_05Oct, JetHT_Run2015D_05Oct, SingleElectron_Run2015D_Promptv4, SingleMuon_Run2015D_Promptv4, JetHT_Run2015D_Promptv4]
+	selectedComponents = [ SingleElectron_Run2015D_05Oct, SingleMuon_Run2015D_05Oct, SingleElectron_Run2015D_Promptv4, SingleMuon_Run2015D_Promptv4]#, JetHT_Run2015D_05Oct,JetHT_Run2015D_Promptv4]
 	#selectedComponents = [ SingleMuon_Run2015D_05Oct, JetHT_Run2015D_05Oct, SingleElectron_Run2015D_Promptv4, SingleMuon_Run2015D_Promptv4, JetHT_Run2015D_Promptv4]
 
 	if test!=0 and jsonAna in susyCoreSequence: susyCoreSequence.remove(jsonAna)
@@ -264,7 +276,7 @@ elif sample == "data":
 	if test==1:
 		# test a single component, using a single thread.
 		#comp = SingleMuon_Run2015D
-		comp = JetHT_Run2015D_Promptv4
+		comp = SingleElectron_Run2015D_Promptv4
 		#comp = SingleElectron_Run2015D
 		#comp.files = ['dcap://dcache-cms-dcap.desy.de/pnfs/desy.de/cms/tier2//store/data/Run2015D/JetHT/MINIAOD/PromptReco-v3/000/256/587/00000/F664AC07-935D-E511-A019-02163E01424B.root']
 
@@ -353,6 +365,8 @@ treeProducer = cfg.Analyzer(
 	collections = susySingleLepton_collections,
 	)
 
+
+
 ## TEMPORARY
 # HBHE filter analyzer
 from CMGTools.TTHAnalysis.analyzers.hbheAnalyzer import hbheAnalyzer
@@ -371,8 +385,13 @@ sequence = cfg.Sequence(susyCoreSequence+[
 		treeProducer,
 		])
 
-# remove skimming for Data
-if isData:
+
+isSignal = False
+#for comp in selectedComponents:
+#	if "SMS" in comp: isSignal = True
+
+# remove skimming for Data or Signal
+if isData or isSignal :
 	sequence.remove(ttHHTSkimmer)
 #	sequence.remove(ttHSTSkimmer)
 

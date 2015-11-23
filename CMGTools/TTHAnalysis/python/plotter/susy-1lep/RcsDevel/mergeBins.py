@@ -43,6 +43,17 @@ def matchSB(bname):
         else:
             name = name.replace('NB2_','NB2i_')
             name = name.replace('NB3i_','NB2i_')
+    elif 'NJ5' in name:
+        name = name.replace('NJ5','NJ4f5')
+        if 'HT2i' in name or 'HT1i' in name:
+            name = name.replace('NB1_','NB1i_')
+            name = name.replace('NB2_','NB1i_')
+            name = name.replace('NB2i_','NB1i_')
+            name = name.replace('NB3i','NB1i')
+        else:
+            name = name.replace('NB2_','NB2i_')
+            name = name.replace('NB3i','NB2i')
+            
     name = name[:-1]
 
     if options.verbose > 0:
@@ -71,7 +82,7 @@ def findMatchBins(binname):
     if '.' in binname:
         binname = binname[:binname.find('.')]
     purebname = binname[:binname.find('_NJ')]
-    
+
     SR_MBname = binname
     CR_MBname = binname.replace('_SR','_CR')
     DLCR_MBname = binname.replace('_SR','_DLCR')
@@ -82,6 +93,8 @@ def findMatchBins(binname):
         njSB = 'NJ45f6'
     elif 'NJ9i' in binname:
         njSB = 'NJ45f9'
+    elif 'NJ5' in binname:
+        njSB = 'NJ4f5'
     SBname = matchSB(binname)# + '_NJ45'
     SBname = SBname[:SBname.find('_NJ')] + '_' + njSB
     SR_SBname = SBname + '_SR'
@@ -158,7 +171,7 @@ def mergeBins(fileList, pattern = 'NJ68', outdir = None):
 
     if len(srList) == 0:
         print "No files found matching pattern", pattern , "+ SR"
-        exit(0)
+        return 0
 
     # create outdir
     if outdir == None: outdir = os.path.dirname(srList[0]) + "/merged/"
@@ -175,6 +188,9 @@ def mergeBins(fileList, pattern = 'NJ68', outdir = None):
         if options.verbose > 0:
             print 'File bin name is', binname
             print 'Matching bins are:', matchbins
+
+        # strip off "SR" ending
+        binname = binname[:binname.find("_SR")]
 
         ofname = outdir+'/'+binname+'.merge.root'
 
@@ -197,7 +213,8 @@ if __name__ == "__main__":
     # find files matching pattern
     fileList = glob.glob(pattern+"*.root")
 
-    mergeBins(fileList)
+    mergeBins(fileList,'NJ68')
     mergeBins(fileList,'NJ9i')
+    mergeBins(fileList,'NJ5')
 
     print 'Finished'

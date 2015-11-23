@@ -6,24 +6,29 @@ from searchBins import *
 from math import hypot
 
 # trees
+#Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/"
+#FTdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/Friends/"
 Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
-mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID_PUave70mb"
-dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/Data/ele_CBID_1p2fb"
 
-Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns_CBID"
-mcFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriendsDiLepton"
-dataFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriendsDiLepton"
+#Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
+#mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID_PUave70mb"
+#dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/Data/ele_CBID_1p2fb"
 
-#FTdir = "FriendTrees_MC/"
+Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2"
 
+mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2/Friends/MC/eleCBID_anyLepSkim"
+sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2/Friends/MC/eleCBID_T1ttt_Scans"
+
+# new data
+dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2/Friends/Data/ele_CBID_1p5fb"
 
 def addOptions(options):
 
     # LUMI (overwrite default 19/fb)
     if options.lumi > 19:
         options.lumi = 3
-    else:
-        options.lumi = 1.26
+    #else:
+    #    options.lumi = 1.26
 
     # set tree options
     options.path = Tdir
@@ -43,15 +48,16 @@ def addOptions(options):
     if options.signal:
         options.var =  "mLSP:mGo*(nEl-nMu)"
         #options.bins = "60,-1500,1500,30,0,1500"
-        options.bins = "34,-1700,1700,10,0,1500"
+        #options.bins = "34,-1700,1700,10,0,1500"
+        options.bins = "161,-2012.5,2012.5,41,-25,2025.5"
 
-        options.friendTrees = [("sf/t",mcFTdir+"/evVarFriend_{cname}.root")]
+        options.friendTreesMC = [("sf/t",sigFTdir+"/evVarFriend_{cname}.root")]
         options.cutsToAdd += [("base","Selected","Selected == 1")] # make always selected for signal
 
     elif options.grid:
         options.var =  "Selected:(nEl-nMu)"
         #options.bins = "2,-1.5,1.5,2,-1.5,1.5"
-#        options.bins = "3,-1.5,1.5,2,-1.5,1.5"
+        #options.bins = "3,-1.5,1.5,2,-1.5,1.5"
         options.bins = "4,-2.5,3.3333333,2,-1.5,1.5"#to cover dilept. as well will have to write content of 0 bin to 4th bin... to also cover for mixed case #CAVEAT/TOFIX: IGNORING ELE/MU mixed case for now (overwritten later with ele+mu)
 
     elif options.plot:
@@ -65,17 +71,24 @@ def addOptions(options):
             options.bins = "[500,750,1000,1250,1600]"
             #options.bins = "25,500,1500"
 
-def makeLepYieldGrid(hist):
+def makeLepYieldGrid(hist, options):
 
     for ybin in range(1,hist.GetNbinsY()+1):
         ymu = hist.GetBinContent(1,ybin)
         yele = hist.GetBinContent(3,ybin)
+        yDLMix = hist.GetBinContent(2,ybin)
+
+        # set MC errors to be sqrt(N)
+        if options.mcPoissonErrors:
+            #print "Setting Poisson errors for MC"
+            hist.SetBinError(1,ybin,sqrt(ymu))
+            hist.SetBinError(2,ybin,sqrt(DLMix))
+            hist.SetBinError(3,ybin,sqrt(yele))
 
         ymuErr = hist.GetBinError(1,ybin)
         yeleErr = hist.GetBinError(3,ybin)
-
-        yDLMix = hist.GetBinContent(2,ybin)
         yDLMixErr = hist.GetBinError(2,ybin)
+
 
         ylep = ymu+yele+yDLMix
         ylepErr = hypot(yDLMixErr,hypot(ymuErr,yeleErr))
@@ -110,7 +123,7 @@ def makeUpHist(hist, options):
         hist.GetYaxis().SetBinLabel(1,"anti")
         hist.GetYaxis().SetBinLabel(2,"selected")
 
-        makeLepYieldGrid(hist)
+        makeLepYieldGrid(hist, options)
 
     if options.signal:
         hist.SetStats(0)
@@ -140,8 +153,6 @@ def writeYields(options):
         outdir = "test/"
     else:
         outdir = options.outdir
-
-
 
     # get report
     if options.pretend:
@@ -267,6 +278,7 @@ if __name__ == "__main__":
 
     # more options
     parser.add_option("--asimov", dest="asimov", action="store_true", default=False, help="Make Asimov pseudo-data")
+    parser.add_option("--mcPoisson", dest="mcPoissonErrors", action="store_true", default=False, help="Make MC errors poisson")
     parser.add_option("--signal", dest="signal", action="store_true", default=False, help="Is signal scan")
     parser.add_option("--grid", dest="grid", action="store_true", default=False, help="Plot 2d grid: ele/mu vs selected/anti")
 
@@ -285,16 +297,27 @@ if __name__ == "__main__":
     # make cut list
     cDict = {}
 
-    cDict = cutDictCR
-    cDict.update(cutDictSR)
-    
-    cDict.update(cutDictSRf9)
-    cDict.update(cutDictCRf9)
+    doDLCR = True
+
+    doNjet6 = True
+    if doNjet6:
+        cDict.update(cutDictCR)
+        cDict.update(cutDictSR)
+        if doDLCR: cDict.update(cutDictDLCR)
 
 
-    cDict.update(cutDictDLCR)
-    cDict.update(cutDictDLCRf9)
-    
+    doNjet9 = True
+    if doNjet9:
+        cDict.update(cutDictSRf9)
+        cDict.update(cutDictCRf9)
+        if doDLCR: cDict.update(cutDictDLCRf9)
+
+
+    doNjet5 = False
+    if doNjet5:
+        cDict.update(cutDictSRf5)
+        cDict.update(cutDictCRf5)
+
     #cDict = cutQCD #QCD
     #cDict = cutIncl #Inclusive
 

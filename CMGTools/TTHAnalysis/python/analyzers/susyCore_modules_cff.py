@@ -43,6 +43,11 @@ triggerAna = cfg.Analyzer(
 triggerFlagsAna = cfg.Analyzer(
     TriggerBitAnalyzer, name="TriggerFlags",
     processName = 'HLT',
+    prescaleProcessName = 'PAT',
+    prescaleFallbackProcessName = 'RECO',
+    unrollbits = False,
+    saveIsUnprescaled = False,
+    checkL1prescale = False,
     triggerBits = {
         # "<name>" : [ 'HLT_<Something>_v*', 'HLT_<SomethingElse>_v*' ] 
     }
@@ -198,6 +203,14 @@ ttHLepSkim = cfg.Analyzer(
     maxLeptons = 999,
     #idCut  = "lepton.relIso03 < 0.2" # can give a cut
     #ptCuts = [20,10],                # can give a set of pt cuts on the leptons
+    )
+
+## OTHER LEPTON SKIMMER
+from CMGTools.TTHAnalysis.analyzers.anyLepSkimmer import anyLepSkimmer
+anyLepSkim = cfg.Analyzer(
+    anyLepSkimmer, name='anyLepSkimmer',
+    minLeptons = 0,
+    maxLeptons = 999,
     )
 
 ## Photon Analyzer (generic)
@@ -465,6 +478,7 @@ susyCoreSequence = [
     susyScanAna,
     vertexAna,
     lepAna,
+    anyLepSkim,
     ttHLepSkim,
     #ttHLepMCAna,
     photonAna,

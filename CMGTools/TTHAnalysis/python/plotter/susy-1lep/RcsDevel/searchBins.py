@@ -69,12 +69,14 @@ DLnBDict['NB3i']   = 'NB1i'
 
 # NJ Bins
 binsNJ = {}
-binsNJ['NJ34'] = ('3 <= nJets && nJets <= 4','[3, 4]')
-binsNJ['NJ4i'] = ('4 <= nJets','$\geq$ 4')
-binsNJ['NJ45f9'] = ('4 <= nJets && nJets <= 5','[4, 5]')
-binsNJ['NJ45f6'] = ('4 <= nJets && nJets <= 5','[4, 5]')
-binsNJ['NJ68'] = ('6 <= nJets && nJets <= 8','[6, 8]')
-binsNJ['NJ9i'] = ('9 <= nJets','$\geq$ 9')
+binsNJ['NJ34'] = ('3 <= nJets30Clean && nJets30Clean <= 4','[3, 4]')
+binsNJ['NJ4i'] = ('4 <= nJets30Clean','$\geq$ 4')
+binsNJ['NJ45f9'] = ('4 <= nJets30Clean && nJets30Clean <= 5','[4, 5]')
+binsNJ['NJ45f6'] = ('4 <= nJets30Clean && nJets30Clean <= 5','[4, 5]')
+binsNJ['NJ68'] = ('6 <= nJets30Clean && nJets30Clean <= 8','[6, 8]')
+binsNJ['NJ9i'] = ('9 <= nJets30Clean','$\geq$ 9')
+binsNJ['NJ5'] = ('nJets30Clean == 5','[5]')
+binsNJ['NJ4f5'] = ('nJets30Clean == 4','[4]')
 
 ##binsNJ for dilepton study (decreased by 1)
 binsNJ['NJ23'] = ('2 <= nJets && nJets <= 3','[2, 3]')
@@ -101,7 +103,6 @@ binsSR = {}
 binsSR['SR'] = ('isSR == 1','$\delta \phi > $ x')
 binsCR = {}
 binsCR['CR'] = ('isSR == 0','$\delta \phi < $ x')
-#binsCR['DLCR'] = ('isSR == 0','$\delta \phi < $ x')
 binsCR['DLCR'] = ('nLep == 2','nLep=2')
 
 
@@ -277,6 +278,7 @@ for nj_bin in ['NJ45f6','NJ68']:#binsNJ.iteritems():
                     cutDictSR[binname] = [("base",lt_bin,lt_cut),("base",ht_bin,ht_cut),("base",nb_bin,nb_cut),("base",nj_bin,nj_cut),("base",sr_bin,sr_cut)]
 
                 for cr_bin in ['CR']:
+                    cr_cut = binsCR[cr_bin][0]
                     DLcr_bin = 'DL'+cr_bin
                     DLcr_cut = binsCR[DLcr_bin][0]
 
@@ -364,4 +366,66 @@ for nj_bin in ['NJ45f9','NJ9i']:#binsNJ.iteritems():
                     DLnb_cut = binsNB[DLnBDict[nb_bin]][0]
                     DLnj_cut = binsNJ[DLnJDict[nj_bin]][0]
                     cutDictDLCRf9[DLbinname] = [("base",lt_bin,DLlt_cut),("base",ht_bin,DLht_cut),("base",nb_bin,DLnb_cut),("base",nj_bin,DLnj_cut),("base",DLcr_bin,DLcr_cut)]
+
+
+
+#####Dictionaries for data cross check from 4 to 5
+cutDictf5 = {}
+cutDictSRf5 = {}
+cutDictCRf5 = {}
+
+
+for nj_bin in ['NJ4f5','NJ5']:#binsNJ.iteritems():
+    nj_cut = binsNJ[nj_bin][0]
+
+    ltbins = ['LT1','LT2','LT3i']
+
+    for lt_bin in ltbins:#binsLT.iteritems():
+        lt_cut = binsLT[lt_bin][0]
+
+        htbins = []
+
+        if lt_bin in ['LT1']:
+            htbins += ['HT0','HT1i']
+        if lt_bin in ['LT2', 'LT3i']:
+            htbins += ['HT0','HT1i']
+
+
+        #for ht_bin,ht_cut in binsHT.iteritems():
+        for ht_bin in htbins:
+            ht_cut = binsHT[ht_bin][0]
+
+            nbbins = []
+
+
+            if nj_bin in ['NJ4f5'] and ht_bin not in ['HT1i']:
+                nbbins += ['NB1','NB2i']
+            if nj_bin in ['NJ4f5'] and ht_bin in ['HT1i']:
+                nbbins += ['NB1i']
+            if nj_bin in ['NJ5']:
+                if lt_bin in ['LT1','LT2']:
+                    nbbins += ['NB1','NB2','NB3i'] # NB1 present in all NJ,LT bins
+                if lt_bin in ['LT3i']:
+                    nbbins += ['NB1','NB2i'] # NB2i present in all NJ,LT bins
+
+
+            for nb_bin in nbbins:
+                nb_cut = binsNB[nb_bin][0]
+                binname = "%s_%s_%s_%s" %(lt_bin,ht_bin,nb_bin,nj_bin)
+                cutDictf5[binname] = [("base",lt_bin,lt_cut),("base",ht_bin,ht_cut),("base",nb_bin,nb_cut),("base",nj_bin,nj_cut)]
+
+                # split to SR/CR
+                for sr_bin in ['SR']:
+                    sr_cut = binsSR[sr_bin][0]
+
+                    binname = "%s_%s_%s_%s_%s" %(lt_bin,ht_bin,nb_bin,nj_bin,sr_bin)
+                    cutDictSRf5[binname] = [("base",lt_bin,lt_cut),("base",ht_bin,ht_cut),("base",nb_bin,nb_cut),("base",nj_bin,nj_cut),("base",sr_bin,sr_cut)]
+
+                for cr_bin in ['CR']:
+                    cr_cut = binsCR[cr_bin][0]
+
+                    binname = "%s_%s_%s_%s_%s" %(lt_bin,ht_bin,nb_bin,nj_bin,cr_bin)
+                    cutDictCRf5[binname] = [("base",lt_bin,lt_cut),("base",ht_bin,ht_cut),("base",nb_bin,nb_cut),("base",nj_bin,nj_cut),("base",cr_bin,cr_cut)]
+
+
 
