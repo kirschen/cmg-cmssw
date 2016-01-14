@@ -28,7 +28,7 @@ class OutputHelper:
         self.printSamps = printSamps
         self.printStyle = printStyle
 
-    # func that is called with print BinYield object
+    # func that is called with print OutputHelper object
     def __repr__(self):
         return "%s : %s : %s : %s" % (self.sample, self.cat, self.printSamps, self.printStyle)
 
@@ -285,44 +285,6 @@ class YieldStore:
         return self.printLatexTableEnh(OutputHelperList,label,f)
 
 
-    def printLatexTableLegacy(self, samps, printSamps, label, f):
-        yds = self.getMixDict(samps)
-        nSource = len(samps)
-        nCol = nSource + 4
-        f.write('\multicolumn{' + str(nCol) + '}{|c|}{' +label +'} \\\ \n')
-        f.write('\multicolumn{' + str(nCol) + '}{|c|}{'  '} \\\ \\hline \n')
-        f.write('$L_T$ & $H_T$ & nB & binName &' +  ' %s ' % ' & '.join(map(str, printSamps)) + ' \\\ \n')
-        f.write(' $[$ GeV $]$  &   $[$GeV$]$ & &  '  + (nSource *'%(tab)s  ') % dict(tab = '&') + ' \\\ \\hline \n')
-
-        bins = sorted(yds.keys())
-        for i,bin in enumerate(bins):
-            (LTbin, HTbin, Bbin ) = bin.split("_")[0:3]
-            (LT, HT, B) = (binsLT[LTbin][1],binsHT[HTbin][1],binsNB[Bbin][1])
-            (LT0, HT0, B0 ) = ("","","")
-            if i > 0 :
-                (LT0bin, HT0bin, B0bin ) = bins[i-1].split("_")[0:3]
-                (LT0, HT0, B0) = (binsLT[LT0bin][1],binsHT[HT0bin][1],binsNB[B0bin][1])
-            if LT != LT0:
-                f.write(('\\cline{1-%s} ' + LT + ' & ' + HT + ' & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin) % (nCol))
-            if LT == LT0 and HT != HT0:
-                f.write(('\\cline{2-%s}  & ' + HT + ' & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin) % (nCol))
-            elif LT == LT0 and HT == HT0:
-                f.write('  &  & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin)
-
-            print yds[bin]
-            for yd in yds[bin]:
-                precision = 2
-                if yd == 0:
-                    f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (0.0, 0.0))
-                else:
-                    if 'Rcs' in yd.cat or 'Kappa' in yd.cat:
-                        precision = 4
-                    f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (yd.val, yd.err))
-
-
-            f.write(' \\\ \n')
-        f.write(' \\hline \n')
-        return 1
 
 
     def divideTwoYieldDictsForRatio(self,catOne,catTwo, newCatName, correlated=False, sampleOne=None, sampleTwo=None):
