@@ -8,7 +8,7 @@ from math import hypot
 # trees
 #Tdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/"
 #FTdir = "/nfs/dust/cms/group/susy-desy/Run2/ACDV/CMGtuples/MC/SPRING15/Spring15/Links/Friends/"
-Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
+#Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
 
 #Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns"
 #mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_Spring15_25ns/Friends/MC/ele_CBID_PUave70mb"
@@ -22,11 +22,19 @@ sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2/Friends/M
 # new data
 dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks_MiniAODv2/Friends/Data/ele_CBID_1p5fb"
 
+#Dilepton stuff
+#mcFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriends_V2"
+#sigFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriends_V2/Signal"
+#dataFTdir = "/nfs/dust/cms/user/kirschen/newSUSYStuff/CMSSW_7_4_12_patch4/src/CMGTools/SUSYAnalysis/macros/FreshFriends_V2/Data"
+
+
+
+
 def addOptions(options):
 
     # LUMI (overwrite default 19/fb)
     if options.lumi > 19:
-        options.lumi = 3
+        options.lumi = 2.2
     #else:
     #    options.lumi = 1.26
 
@@ -165,7 +173,7 @@ def writeYields(options):
     if not options.pretend:
         totalMC = []; ewkMC = []
         for p in mca.listBackgrounds():
-            if p in report and 'TTdiLep' not in p and 'TTsemiLep' not in p and 'TTincl' not in p:
+            if p in report and 'TTdiLep' not in p and 'TTsemiLep' not in p and 'TTincl' not in p and 'DiLep_' not in p:
             #if p in report and 'TTdiLep' not in p and 'TTsemiLep' not in p:
                 print 'adding for background',p
                 totalMC.append(report[p])
