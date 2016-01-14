@@ -46,7 +46,6 @@ class EventVars1L_bkgDilep:
 
         Met2D_AddFull = Met2D + LepToDiscard2D
         Met2D_AddThird = Met2D + (1/3.*LepToDiscard2D)
-        LepToKeep_pt = LepToKeep2D.Mod()
         
         recoWp4 = LepToKeep2D + Met2D
         outputdict["DL_dPhiLepW"].append(LepToKeep2D.DeltaPhi(recoWp4)) # [0]: not adding leptons to MET
@@ -84,6 +83,7 @@ class EventVars1L_bkgDilep:
             elif type(name) == 'str':
                 ret[name] = -999.0
 
+        if base['Selected']!=1: return ret #only run the full module on selected leptons, not the ones for QCD estimate
         # get some collections from initial tree
         leps = [l for l in Collection(event,"LepGood","nLepGood")]
         jets = [j for j in Collection(event,"Jet","nJet")]
@@ -145,6 +145,7 @@ class EventVars1L_bkgDilep:
                 uniform01 = random.Rndm()
                 lepToKeep = int(uniform01>0.5)
                 LepToKeep_pdgId = tightLeps[lepToKeep].pdgId
+                LepToKeep_pt = tightLeps[lepToKeep].pt
                 lepToDiscard = int(not lepToKeep)
                 outdict = self.calcDLDictionary(base, keepIdx=lepToDiscard, discardIdx=lepToKeep)#reversed order to check both combinations and save them
                 DLMS_ST      .append(outdict["DL_ST"      ][2])
