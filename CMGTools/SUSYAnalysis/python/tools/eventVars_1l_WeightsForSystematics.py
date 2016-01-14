@@ -4,7 +4,7 @@ import ROOT
 
 class EventVars1LWeightsForSystematics:
     def __init__(self):
-        self.branches = ["GenTopPt", "GenAntiTopPt", "TopPtWeight", "GenTTBarPt", "GenTTBarWeight", "DilepNJetWeightConst", "DilepNJetWeightSlope", "DilepNJetWeight", 
+        self.branches = ["GenTopPt", "GenAntiTopPt", "TopPtWeight", "GenTTBarPt", "GenTTBarWeight", "DilepNJetWeightConst", "DilepNJetWeightSlope", 
                          ]
 
     def listBranches(self):
@@ -78,22 +78,6 @@ class EventVars1LWeightsForSystematics:
             ret['DilepNJetWeightConst'] = 1.
             ret['DilepNJetWeightSlope'] = 1.
 
-
-        #Alternative "all in one" weight which is the envelope of the 68% unc. band with a big jump around the mean value (to be deprecated)
-        DiLepWeightDict = dict([ ( 3 , 0.8402), 
-                                 ( 4 , 0.8913), 
-                                 ( 5 , 0.9265), 
-                                 ( 6 , 1.0788), 
-                                 ( 7 , 1.1286), 
-                                 ( 8 , 1.1832), 
-                                 ( 9 , 1.2475), 
-                                 ( 10 , 1.3034), 
-                                 ( 11 , 1.3578), 
-                                 ])
-        if base['nJets30Clean']<12 and base['nJets30Clean']>2 and event.ngenLep+event.ngenTau==2:
-            ret['DilepNJetWeight'] = DiLepWeightDict[base['nJets30Clean']]
-        else:
-            ret['DilepNJetWeight'] = 1.
 
         ret['GenTopPt'] = GenTopPt
         ret['GenAntiTopPt'] = GenAntiTopPt
