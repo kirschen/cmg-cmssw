@@ -189,7 +189,7 @@ class EventVars1L_base:
             ## jets
             ("nJets30","I"), ("nBJet","I"),'nJets30Clean', 
             'HT','nJets',
-            'nJets40','nBJets40',
+            'nJets40','nBJets40','nBJets30',
             "htJet30j", "htJet30ja","htJet40j",
             'Jet1_pt','Jet2_pt',
             ("Jets30Idx","I",100,"nJets30"),("BJetIdx","I",50,"nBJet"),
@@ -476,7 +476,6 @@ class EventVars1L_base:
 
         # store tight lepton indices for later processing steps
         ret['tightLepsIdx'] = tightLepsIdx
-
         # get number of tight el and mu
         tightEl = [lep for lep in tightLeps if abs(lep.pdgId) == 11]
         tightMu = [lep for lep in tightLeps if abs(lep.pdgId) == 13]
@@ -495,8 +494,8 @@ class EventVars1L_base:
 
             ret['Lep_relIso'] = tightLeps[0].relIso03
             ret['Lep_miniIso'] = tightLeps[0].miniRelIso
-            #if hasattr(event,"LepGood_hOverE"):
-            ret['Lep_hOverE'] = tightLeps[0].hOverE
+            if hasattr(event,"LepGood_hOverE"):
+                ret['Lep_hOverE'] = tightLeps[0].hOverE
 
         elif len(leps) > 0: # fill it with leading lepton
             ret['Lep_Idx'] = 0
@@ -508,8 +507,8 @@ class EventVars1L_base:
 
             ret['Lep_relIso'] = leps[0].relIso03
             ret['Lep_miniIso'] = leps[0].miniRelIso
-            #if hasattr(event,"LepGood_hOverE"):
-            ret['Lep_hOverE'] = ret['Lep_hOverE'] = leps[0].hOverE
+            if hasattr(event,"LepGood_hOverE"):
+                ret['Lep_hOverE'] = ret['Lep_hOverE'] = leps[0].hOverE
 
         ########
         ### Jets
