@@ -38,9 +38,11 @@ if __name__ == "__main__":
     yds9 = YieldStore("lepYields")
     yds5 = YieldStore("lepYields")
 
-    pattern = "Yields/MC/lumi3fb/full/*/merged/LT*NJ6*"
+#    pattern = "Yields/MC/lumi3fb/full/*/merged/LT*NJ6*"
+    pattern = "lumi21fb/gridWithDLCR/merged/LT*NJ6*"
     yds6.addFromFiles(pattern,("lep","sele"))
-    pattern = "Yields/MC/lumi3fb/full/*/merged/LT*NJ9*"
+#    pattern = "Yields/MC/lumi3fb/full/*/merged/LT*NJ9*"
+    pattern = "lumi21fb/gridWithDLCR/merged/LT*NJ9*"
     yds9.addFromFiles(pattern,("lep","sele"))
 
     pattern = "Yields/data/lumi1p5fb_0p8scale/full/grid/merged/LT*NJ5*"
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     printSamps = ['TTsemiLep','TTdiLep','TTV','SingleT', 'WJets', 'DY', 'QCD','background','T1t$^4$ 1.5$/$0.2','T1t$^4$ 1.5$/$0.9']
 
     
-    cats = ('SR_MB', 'CR_MB', 'SR_SB', 'CR_SB')
+    cats = ('SR_MB', 'CR_MB', 'SR_SB', 'CR_SB','DLCR_MB', 'DLCR_SB',)
     for cat in cats:
         f =  open('yields' + cat + '.tex','w')
         samps = [('TTsemiLep',cat),('TTdiLep',cat),('TTV',cat), ('SingleT',cat), ('WJets',cat), ('DY',cat), ('QCD',cat), ('background',cat),
@@ -66,6 +68,48 @@ if __name__ == "__main__":
         yds9.printLatexTable(samps, printSamps, label, f)
         printLatexFooter(f)
 
+    print "Prepare dileptonic printout by calculating"
+    yds6.divideTwoYieldDictsForRatio('DLCR_MB','SR_MB','DLCR_MB_RelSize')
+    yds6.divideTwoYieldDictsForRatio('DLCR_SB','SR_SB','DLCR_SB_RelSize')
+    yds9.divideTwoYieldDictsForRatio('DLCR_MB','SR_MB','DLCR_MB_RelSize')
+    yds9.divideTwoYieldDictsForRatio('DLCR_SB','SR_SB','DLCR_SB_RelSize')
+
+    yds6.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'background','data')
+    yds9.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'background','data')
+                                                          
+    yds6.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'DiLep_Inc','background')
+    yds9.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'DiLep_Inc','background')
+    
+    yds6.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'TTdiLep','background')
+    yds9.divideTwoYieldDictsForRatio('COPYALL','COPYALL','dummy', False, 'TTdiLep','background')
+    
+
+    OutputHelperList = []
+    OutputHelperList.append(OutputHelper(('background','SR_MB'),"all bkg(SR)"))
+    OutputHelperList.append(OutputHelper(('DiLep_Inc','SR_MB_RTo_background'),"dilept.(SR)","percentage"))
+    OutputHelperList.append(OutputHelper(('TTdiLep','SR_MB_RTo_background'),"ttbar dilept(SR)","percentage"))
+
+    OutputHelperList.append(OutputHelper(('DiLep_Inc','SR_MB'),"Dilept. bkg(SR)"))
+#    OutputHelperList.append(OutputHelper(('TTdiLep','SR_MB'),"ttbar dilept. bkg(SR)"))
+#    OutputHelperList.append(OutputHelper(('DiLep_Inc','DLCR_MB'),"Dilept. bkg(DLCR)"))
+    OutputHelperList.append(OutputHelper(('background','DLCR_MB'),"all bkg(DLCR)"))
+    OutputHelperList.append(OutputHelper(('DiLep_Inc','DLCR_MB_RTo_background'),"dilept.(DLCR)","percentage"))
+    OutputHelperList.append(OutputHelper(('data','DLCR_MB'),"data(DLCR)"))
+#    OutputHelperList.append(OutputHelper(('background','DLCR_MB_RelDataMC'),"MCData(DLCR)","percentage"))
+    OutputHelperList.append(OutputHelper(('background','DLCR_MB_RTo_data'),"MCData(DLCR)","percentage"))
+    OutputHelperList.append(OutputHelper(('background','CR_MB_RTo_data'),"MCData(CR\_MB)", "percentage"))
+#    OutputHelperList.append(OutputHelper(('TTdiLep','DLCR_MB_RelSize'),"rel. size (DLCR) ttdilep", "percentage"))
+    OutputHelperList.append(OutputHelper(('DiLep_Inc','DLCR_MB_RelSize'),"rel. size (DLCR)","percentage"))
+#    OutputHelperList.append(OutputHelper(('data','DLCR_MB_RelSize'),"rel. size (DLCR)data", "percentage"))
+
+    f =  open('yieldsDLCRComparison.tex','w')
+    printLatexHeader(len(OutputHelperList), f)
+    yds6.showStats()
+    label = 'Yield comparison for DL CR vs. signal region for 2.1 fbinv for njet 6,8 '
+    yds6.printLatexTableEnh(OutputHelperList, label,f) 
+    label = 'Yield comparison for DL CR vs. signal region for 2.1 fbinv for njet $\\geq 9$'
+    yds9.printLatexTableEnh(OutputHelperList, label, f)
+    printLatexFooter(f)
 
 
     f =  open('45j_test.tex','w')
