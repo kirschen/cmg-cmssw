@@ -66,6 +66,16 @@ DLnBDict['NB1i']   = 'NB1i'
 DLnBDict['NB2i']   = 'NB1i' 
 DLnBDict['NB3i']   = 'NB1i' 
 
+###binsNb for dilepton study don't change anything for now...
+#DLnBDict = {}
+#DLnBDict['NB0']   = 'NB0' 
+#DLnBDict['NB1']   = 'NB1' 
+#DLnBDict['NB2']   = 'NB2' 
+#DLnBDict['NB0i']   = 'NB0i' 
+#DLnBDict['NB1i']   = 'NB1i' 
+#DLnBDict['NB2i']   = 'NB2i' 
+#DLnBDict['NB3i']   = 'NB3i' 
+
 
 # NJ Bins
 binsNJ = {}
