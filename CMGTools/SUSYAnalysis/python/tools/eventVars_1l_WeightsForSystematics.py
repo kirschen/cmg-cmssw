@@ -4,7 +4,7 @@ import ROOT
 
 class EventVars1LWeightsForSystematics:
     def __init__(self):
-        self.branches = ["GenTopPt", "GenAntiTopPt", "TopPtWeight", "GenTTBarPt", "GenTTBarWeight", "DilepNJetWeightConst", "DilepNJetWeightSlope", 
+        self.branches = ["GenTopPt", "GenAntiTopPt", "TopPtWeight", "GenTTBarPt", "GenTTBarWeight", "DilepNJetWeightConstUp", "DilepNJetWeightSlopeUp", "DilepNJetWeightConstDn", "DilepNJetWeightSlopeDn", 
                          ]
 
     def listBranches(self):
@@ -72,11 +72,15 @@ class EventVars1LWeightsForSystematics:
         # slope: 0.03 +/-0.05
         slopevariation = sqrt(0.03*0.03 +0.05*0.05) 
         if (event.ngenLep+event.ngenTau)==2:
-            ret['DilepNJetWeightConst'] = 0.84
-            ret['DilepNJetWeightSlope'] = 1+ (base['nJets30Clean']-wmean)*slopevariation
+            ret['DilepNJetWeightConstUp'] = 0.84
+            ret['DilepNJetWeightSlopeUp'] = 1+ (base['nJets30Clean']-wmean)*slopevariation
+            ret['DilepNJetWeightConstDn'] = 1.16
+            ret['DilepNJetWeightSlopeDn'] = 1- (base['nJets30Clean']-wmean)*slopevariation
         else:
-            ret['DilepNJetWeightConst'] = 1.
-            ret['DilepNJetWeightSlope'] = 1.
+            ret['DilepNJetWeightConstUp'] = 1.
+            ret['DilepNJetWeightSlopeUp'] = 1.
+            ret['DilepNJetWeightConstDn'] = 1.
+            ret['DilepNJetWeightSlopeDn'] = 1.
 
 
         ret['GenTopPt'] = GenTopPt
