@@ -14,10 +14,16 @@ class BinYield:
         self.cat = cat
         self.val = val
         self.err = err
+        self.label = sample
+        self.sbname = ""
+        self.mbname = ""
 
     # func that is called with print BinYield object
     def __repr__(self):
         return "%s : %s : %4.2f +- %4.2f" % (self.name, self.cat, self.val, self.err)
+
+    def printValue(self, prec = "4.2"):
+        return "%4.2f +- %4.2f" % (self.val, self.err)
 
 class OutputHelper:
     ## Simple class to define sample, category, printSamps (and e.g. printStyle)
@@ -70,31 +76,53 @@ class YieldStore:
         # Open file and get bin name
         tfile = TFile(fname,"READ")
         bfname = os.path.basename(fname)
-        binName = bfname.replace("_SR.merge.root","")
-        binName = binName.replace(".merge.root","")
+        binName = bfname[:bfname.find(".")]
+        binName = binName.replace("_SR","")
+        #binName = binName.replace(".merge.root","")
         #print binName
 
         # get list of dirs
         dirList = [dirKey.ReadObj() for dirKey in gDirectory.GetListOfKeys() if dirKey.IsFolder() == 1]
+        # append also current dir
+        dirList.append(gDirectory.CurrentDirectory())
 
         # Loop over yield categories
         for catDir in dirList:
             catDir.cd()
             category = catDir.GetName()
+            if category == tfile.GetName(): category = "root"
 
             # get list of histograms
             histList = [histKey.ReadObj() for histKey in gDirectory.GetListOfKeys() if histKey.IsFolder() != 1]
 
-            print fname, histList
+            binLabel = ""
+            sbname = ""; mbname = ""
+
+            ## Get Bin labels
+            for hist in histList:
+                # Save real bin name
+                if hist.ClassName() == "TNamed":
+                    if hist.GetName() == "SBname":
+                        sbname = hist.GetTitle()
+                    elif hist.GetName() == "MBname":
+                        mbname = hist.GetTitle()
+                    else:
+                        binLabel = hist.GetTitle()
+                    #print binLabel
+
+            #print binLabel, sbname, mbname
+
             ## Loop over hists and save to dicts
             for hist in histList:
 
-                sample = hist.GetName()
+                if "TH" not in hist.ClassName(): continue
 
+                sample = hist.GetName()
 
                 if ('Scan' not in sample) and ('scan' not in sample):
                     # get normal sample yield
                     yd = BinYield(sample, category, getLepYield(hist, leptype))
+                    yd.label = binLabel; yd.sbname = sbname; yd.mbname = mbname
                     self.addYield(sample,category,binName,yd)
                 else:
                     # get yields from scan
@@ -106,8 +134,10 @@ class YieldStore:
                         #point = (mGo,mLSP)
 
                         yd = BinYield(point, category, yds[(mGo,mLSP)])
+                        yd.label = binLabel; yd.sbname = sbname; yd.mbname = mbname
                         self.addYield(point,category,binName,yd)
 
+        tfile.Close()
         return 1
 
     def addFromFiles(self, pattern, leptype = ("lep","sele") ):
@@ -119,7 +149,7 @@ class YieldStore:
         fileList = glob.glob(pattern+"*.root")
         nFiles = len(fileList)
 
-        print "## Starting to add yields from %i files like " %(nFiles) + pattern + ": ", ; sys.stdout.flush()
+        print "## Starting to add yields for %s from %i files like " %(self.name,nFiles) + pattern + ": ", ; sys.stdout.flush()
         # progress bar
         progbar_width = nFiles
         # setup progbar
@@ -139,7 +169,7 @@ class YieldStore:
 
     def showStats(self):
         print 80*"#"
-        print "Storage contains:"
+        print "Storage %s contains:" %self.name
         print len(self.bins), "Bins:", self.bins
         print len(self.categories), "Categories:", self.categories
         print len(self.samples), "Samples:", self.samples
@@ -156,6 +186,7 @@ class YieldStore:
                 if bin in self.yields[samp][cat]:
                     if verbose: print self.yields[samp][cat][bin]
                     return self.yields[samp][cat][bin]
+            # return zero if sample is in dict (for scans)
             return BinYield(samp, cat, (0, 0))
         return 0
 
@@ -208,7 +239,8 @@ class YieldStore:
         #print "Bin\tYield+-Error"
 
         for bin in sorted(yds.keys()):
-            print bin,"\t", yds[bin]
+            #print bin,"\t", yds[bin]
+            print bin,"\t", yds[bin].printValue()
         print 80*"-"
 
         return 1
@@ -219,11 +251,11 @@ class YieldStore:
 
         print 80*"-"
         print "Contents for", samps
-        print "Bin\tYield+-Error"
+        #print "Bin\tYield+-Error"
 
         for bin in sorted(yds.keys()):
             print bin,"\t\t",
-            for yd in yds[bin]: print yd,"\t",
+            for yd in yds[bin]: print yd.printValue(),"\t",
             print
 
         return 1
@@ -255,7 +287,6 @@ class YieldStore:
             elif LT == LT0 and HT == HT0:
                 f.write('  &  & ' + B + '&' + LTbin +', ' + HTbin + ', ' + Bbin)
 
-            print yds[bin]
             for i,yd in enumerate(yds[bin]):
                 
                 precision = 2
@@ -263,13 +294,26 @@ class YieldStore:
                     f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (0.0, 0.0))
                 else:
                     print OutputHelperList[i]
+                    val = yd.val
+                    err = yd.err
                     if 'Rcs' in yd.cat or 'Kappa' in yd.cat:
                         precision = 4
-                    if OutputHelperList[i].printStyle == "percentage":
+                    elif 'data_QCDsubtr' in yd.name:
+                        precision = 2
+                    elif '_predict' in yd.cat or 'background' in yd.name:
+                        precision = 0
+                        val = round(yd.val)
+                        err = math.sqrt(round(yd.val))
+
+                    if 'syst' in yd.name:
+                        precision = 2
+                        print val, ydsNorm[bin][0].val
+                        f.write((' & %.'+str(precision)+'f' ) % (val/ydsNorm[bin][0].val*100))
+                    elif OutputHelperList[i].printStyle == "percentage":
                         f.write((' & {:.1f}\%'.format(yd.val*100)))
-#                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % yd.val
+#                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % val
                     else:
-                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (yd.val, yd.err))
+                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (val, err))
 
 
             f.write(' \\\ \n')
@@ -378,18 +422,23 @@ if __name__ == "__main__":
         exit(0)
 
     yds = YieldStore("bla")
-    yds.addFromFiles(pattern)
+    yds.addFromFiles(pattern,("lep","sele"))
+    #yds.addFromFiles(pattern,("ele","anti"))
 
     yds.showStats()
 
     #yds.printBins("QCD","CR_SB")
+    #yds.printBins("EWK","Kappa")
+
     #yds.getSampsDict("QCD",["CR_SB","CR_MB"])
     #yds.printBins("QCD",["CR_SB","CR_MB"])
     #yds.printBins("data",yds.categories)
 
-    '''
+
     #samps = {"EWK":"CR_MB","QCD":"CR_SB"}
     #samps = {"EWK":"CR_SB","background_QCDsubtr":"CR_SB","background_QCDsubtr":"Closure"}
+
+    '''
     samps = [
         ("QCD","CR_SB"),
         ("QCD_QCDpred","CR_SB"),
@@ -400,7 +449,6 @@ if __name__ == "__main__":
 
     #print yds.yields
 
-    '''
     cat = "SR_MB"
 
     samps = [
@@ -412,3 +460,17 @@ if __name__ == "__main__":
     yds.printMixBins(samps)
 
     print [s for s in yds.samples if "1500" in s]
+    '''
+
+    sysClass = "btagHF"
+    samp = "EWK"
+    cat = "Kappa"
+
+    samps = [
+        (samp,cat),
+        (samp+"_" + sysClass + "_syst",cat),
+        (samp+"_" + sysClass + "-Up",cat),
+        (samp+"_" + sysClass + "-Down",cat),
+        ]
+    #print yds.getMixDict(samps)
+    yds.printMixBins(samps)

@@ -1,5 +1,6 @@
 import sys,os
 
+#import  makeYieldPlots as yp
 from makeYieldPlots import *
 
 _batchMode = False
@@ -28,14 +29,14 @@ if __name__ == "__main__":
     yds.addFromFiles(pattern,("lep","sele"))
     yds.showStats()
 
-    mcSamps = ['DY','QCD','TTV','SingleT','WJets','TT']#
+    mcSamps = ['DY','TTV','SingleT','WJets','TT']#
     #mcSamps = ['WJets','TT','QCD']
 
     # update colors
     colorDict["MC_prediction"] = kGreen
     colorDict["Data_prediction"] = kRed
 
-    CMS_lumi.lumi_13TeV = str(1.55) + " fb^{-1}"
+    CMS_lumi.lumi_13TeV = str(2.24) + " fb^{-1}"
     CMS_lumi.extraText = "Preliminary"
 
     # Category
@@ -60,15 +61,17 @@ if __name__ == "__main__":
         #ratio.GetYaxis().SetRangeUser(0,5)
 
         #canv = plotHists("DataNJ45_"+cat,[stack,hMCpred,hDataPred,hData,total],ratio)
-        canv = plotHists("DataNJ45_1p5fb_"+cat,[stack,total,hDataPred,hData],ratio)
+        canv = plotHists("Data_2p24fb_ratio_logy_"+cat+'_'+mask,[stack,total,hDataPred,hData],ratio,'TM', 1200, 600, logY = True)
+        print canv.GetName()
+        #canv.SetTitle("SR MB Prediction")
 
-        for hist in [stack,total,hDataPred,hData]:
-            hist.GetYaxis().SetRangeUser(0,15)
+        #for hist in [stack,total,hDataPred,hData]:
+        #    hist.GetYaxis().SetRangeUser(0.001,105)
 
         if not _batchMode:
             if "q" in raw_input("Enter any key to exit (or 'q' to stop): "): exit(0)
 
-        exts = [".pdf",".png"]
+        exts = [".pdf",".png",".root"]
         for ext in exts:
-            canv.SaveAs("BinPlots/Data/stacks/"+mask+canv.GetName()+ext)
+            canv.SaveAs("BinPlots/Data/stacks/"+canv.GetName()+ext)
 

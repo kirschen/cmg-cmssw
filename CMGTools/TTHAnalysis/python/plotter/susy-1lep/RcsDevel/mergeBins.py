@@ -36,11 +36,12 @@ def matchSB(bname):
     elif 'NJ9' in name:
         # match for NJ9i
         name = name.replace('NJ9i','NJ45f9')
-        if 'LT2' in name and 'HT2i' in name:
+        if 'HT2i' in name:
             name = name.replace('NB1_','NB1i_')
             name = name.replace('NB2_','NB1i_')
             name = name.replace('NB3i_','NB1i_')
         else:
+            name = name.replace('NB21','NB1i_')
             name = name.replace('NB2_','NB2i_')
             name = name.replace('NB3i_','NB2i_')
     elif 'NJ5' in name:
@@ -53,7 +54,7 @@ def matchSB(bname):
         else:
             name = name.replace('NB2_','NB2i_')
             name = name.replace('NB3i','NB2i')
-            
+
     name = name[:-1]
 
     if options.verbose > 0:
@@ -95,6 +96,10 @@ def findMatchBins(binname):
         njSB = 'NJ45f9'
     elif 'NJ5' in binname:
         njSB = 'NJ4f5'
+    else:
+        print "No match found"
+        exit(0)
+
     SBname = matchSB(binname)# + '_NJ45'
     SBname = SBname[:SBname.find('_NJ')] + '_' + njSB
     SR_SBname = SBname + '_SR'
@@ -141,21 +146,26 @@ def writeBins(ofname, srcdir, binnames):
 
     dirnames = ['SR_MB','CR_MB','DLCR_MB','SR_SB','CR_SB','DLCR_SB']
 
+
     for idx,dname in enumerate(dirnames):
 
         ofile.mkdir(dname)
 
         srcfname = srcdir+binnames[idx]+'.yields.root'
         if not os.path.exists(srcfname):
-            print 'Could not find src file', srcfname
+            print 'Could not find src file', os.path.basename(srcfname)
             continue
 
         tfile = TFile(srcfname,"READ")
+        ofile.cd(dname)
+
+        # save bin name
+        name = TNamed("BinName",binnames[idx])
+        name.Write()
 
         for key in tfile.GetListOfKeys():
 
             obj = key.ReadObj()
-            ofile.cd(dname)
             obj.Write()
 
         tfile.Close()
@@ -210,11 +220,16 @@ if __name__ == "__main__":
         print parser.usage
         exit(0)
 
+    # append / if pattern is a dir
+    if os.path.isdir(pattern): pattern += "/"
+
     # find files matching pattern
     fileList = glob.glob(pattern+"*.root")
 
-    mergeBins(fileList,'NJ68')
-    mergeBins(fileList,'NJ9i')
-    mergeBins(fileList,'NJ5')
+    bins = ['NJ5','NJ68','NJ9i']
+
+    for bin in bins:
+        print "Merging bin:", bin
+        mergeBins(fileList,bin)
 
     print 'Finished'

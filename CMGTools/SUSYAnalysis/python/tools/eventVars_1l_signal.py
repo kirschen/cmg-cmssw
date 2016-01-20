@@ -28,7 +28,8 @@ with open(xsecFile,"r") as xfile:
 cntsSusy = {} # dict for signal counts
 #cntTotal = 0
 
-cntFile = "../python/tools/t1ttt_scan_counts.txt"
+#cntFile = "../python/tools/t1ttt_scan_counts.txt"
+cntFile = "../python/tools/scans/counts_T1tttt_wSkim.txt"
 
 with open(cntFile,"r") as cfile:
     lines = cfile.readlines()
@@ -37,9 +38,10 @@ with open(cntFile,"r") as cfile:
     for line in lines:
         if line[0] == '#': continue
         else:
-            (mGo,mLSP,tot,cnt,wgt) = line.split()
+            (mGo,mLSP,tot,totW,cnt,wgt) = line.split()
             #print 'Importet', mGo, mLSP, cnt, 'from', line
-            cntsSusy[(int(mGo),int(mLSP))] = (int(tot),int(cnt),float(wgt))
+            #cntsSusy[(int(mGo),int(mLSP))] = (int(tot),int(cnt),float(wgt))
+            cntsSusy[(int(mGo),int(mLSP))] = (float(totW),int(cnt),float(wgt))
 
     print 'Filled %i items to dict' % (len(cntsSusy))
     print "Finished signal parameter load"
@@ -69,14 +71,12 @@ class EventVars1L_signal:
             mLSP = 0
 
             # Gluino Mass
-            if hasattr(event,'GenSusyMGluino'):
-                ret['mGo'] = event.GenSusyMGluino
-                mGo = ret['mGo']
+            if hasattr(event,'GenSusyMGluino'): mGo = event.GenSusyMGluino
 
             # LSP Mass
-            if hasattr(event,'GenSusyMNeutralino'):
-                ret['mLSP'] = event.GenSusyMNeutralino
-                mLSP = ret['mLSP']
+            if hasattr(event,'GenSusyMNeutralino'): mLSP = event.GenSusyMNeutralino
+            # set LSP mass of 1 to zero
+            if mLSP == 1: mLSP = 0;
 
             # Fill for testing
             pseudoScan = False
@@ -88,7 +88,8 @@ class EventVars1L_signal:
                     mGo = random.randrange(500,1500,50)
                     mLSP = random.randrange(0,1500,50)
 
-                ret['mGo'] = mGo; ret['mLSP'] = mLSP
+            # save masses
+            ret['mGo'] = mGo; ret['mLSP'] = mLSP
 
             # SUSY Xsec
             if mGo in xsecGlu:
