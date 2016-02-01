@@ -938,17 +938,12 @@ class PlotMaker:
                                     plot = pmap[p]
                                     if "TGraph" in plot.ClassName(): continue
                                     c1.SetRightMargin(0.20)
-<<<<<<< HEAD
                                     if pspec.hasOption('Logz'):
                                         plot.SetContour(20)
                                         plot.Draw("CONT0Z")
                                     else:
                                         plot.SetContour(100)
-                                        plot.Draw("COLZ TEXT45")
-=======
-                                    plot.SetContour(100)
-                                    plot.Draw(pspec.getOption("PlotMode","COLZ TEXT45"))
->>>>>>> bd4452842f9b8ea36c56a47adc81692b39d67a12
+                                        plot.Draw(pspec.getOption("PlotMode","COLZ TEXT45"))
                                     c1.Print("%s/%s_%s.%s" % (fdir, pspec.name, p, ext))
                                 if "data" in pmap and "TGraph" in pmap["data"].ClassName():
                                     pmap["data"].SetMarkerSize(pspec.getOption("MarkerSize",1.6))
