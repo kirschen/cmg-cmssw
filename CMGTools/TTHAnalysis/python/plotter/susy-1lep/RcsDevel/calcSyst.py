@@ -80,10 +80,11 @@ def getSystHist(tfile, hname, syst = "Xsec"):
                 maxDev = (DevUp-DevDn)/2#WARNING: HERE DOING ONLY AN ENVELOPE OF THE VARIATIONS!
                 print DevUp, DevDn, maxDev
                 # limit max deviation to 200%
+                if "RMS" in syst: maxDev = a.std()
+
                 maxDev = min(maxDev,2.0)
     
                 hSyst.SetBinContent(xbin,ybin,maxDev)
-#                hSyst.SetBinContent(xbin,ybin,a.std())
                 hSyst.SetBinError(xbin,ybin,maxErr)
                 if maxDev>1 and "Kappa" in hname: print hname, maxDev, xbin, ybin, tfile
         #return hSyst
