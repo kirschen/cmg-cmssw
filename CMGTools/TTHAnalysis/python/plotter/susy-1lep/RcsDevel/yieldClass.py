@@ -3,8 +3,27 @@
 import os, glob, sys, math
 
 from ROOT import *
-from searchBins import *
+#from searchBins import *
+from searchBins_few import *
 from readYields import getLepYield, getScanYields
+#helper function maybe move somewhere else
+
+def readSystFile():
+    systDict = {}
+    with open('sysTable.dat',"r") as xfile:
+        lines = xfile.readlines()
+        systs = lines[0].replace(' ','').replace('\n','').split('|') 
+        print systs
+        for line in lines[1:]:
+            values = line.replace(' ','').replace('\n','').split('|')            
+            binMB = values[0]
+            binSB = values[1]
+            singleSysts = {}
+            for val, syst in zip(values[2:],systs[2:]):
+                singleSysts[(binSB,syst)] = val
+            systDict[binMB] =  singleSysts
+
+    return systDict
 
 class BinYield:
     ## Simple class for yield,error storing (instead of tuple)
@@ -262,8 +281,12 @@ class YieldStore:
 
 
 
-    def printLatexTableEnh(self, OutputHelperList, label, f):
+    def printLatexTableEnh(self, OutputHelperList, label, f, doSys = False):
+        systDict = {}
+        if doSys:
+            systDict = readSystFile()
         yds = self.getMixDict(OutputHelperList)
+        ydsNorm = self.getMixDict([('EWK', 'Kappa'),])
         nSource = len(OutputHelperList)
         nCol = nSource + 4
         f.write('\multicolumn{' + str(nCol) + '}{|c|}{' +label +'} \\\ \n')
@@ -296,22 +319,31 @@ class YieldStore:
                     print OutputHelperList[i]
                     val = yd.val
                     err = yd.err
+                    syserr = 0
                     if 'Rcs' in yd.cat or 'Kappa' in yd.cat:
                         precision = 4
                     elif 'data_QCDsubtr' in yd.name:
                         precision = 2
-                    elif '_predict' in yd.cat or 'background' in yd.name:
+                    elif 1==2: #'_predict' in yd.cat or 'background' in yd.name:
                         precision = 0
                         val = round(yd.val)
                         err = math.sqrt(round(yd.val))
-
-                    if 'syst' in yd.name:
+                    if doSys and 'SR_MB_predict' in yd.cat and 'data' in yd.name:
+                        for syst in systDict[bin]:
+                            syserr = syserr + (val*(1.0-float(systDict[bin][syst])))*(val*(1.0-float(systDict[bin][syst])))
+                        syserr = math.sqrt(syserr)
+                        print syserr, val
+                    
+                    if doSys and 'syst' in yd.name:
                         precision = 2
                         print val, ydsNorm[bin][0].val
-                        f.write((' & %.'+str(precision)+'f' ) % (val/ydsNorm[bin][0].val*100))
+                        f.write((' & %.'+str(precision)+'f' ) % (val*100))
                     elif OutputHelperList[i].printStyle == "percentage":
                         f.write((' & {:.1f}\%'.format(yd.val*100)))
 #                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % val
+
+                    elif 'SR_MB_predict' in yd.cat and 'data' in yd.name :
+                        f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (val, err, syserr))
                     else:
                         f.write((' & %.'+str(precision)+'f $\pm$ %.'+str(precision)+'f') % (val, err))
 
@@ -320,13 +352,13 @@ class YieldStore:
         f.write(' \\hline \n')
         return 1
 
-    def printLatexTable(self, samps, printSamps, label, f):
+    def printLatexTable(self, samps, printSamps, label, f, doSys = False):
         assert len(samps)==len(printSamps)
         OutputHelperList = []
         for i,samp in enumerate(samps):
             OutputHelperList.append(OutputHelper(samp, printSamps[i]))
 
-        return self.printLatexTableEnh(OutputHelperList,label,f)
+        return self.printLatexTableEnh(OutputHelperList,label,f,doSys)
 
 
 
@@ -384,27 +416,29 @@ class YieldStore:
                             print "not implemented yet, no return defined"
                     
 
-#        elif sampleOne!=None and sampleOne!=None:
-#            if catOne in self.yields[sampeOne] and catTwo in self.yields[sampleTwo]:
-#                    for bin in self.bins:
-#                        c1Y = self.getBinYield(samp,catOne,bin)
-#                        c2Y = self.getBinYield(samp,catTwo,bin)
-#                        if not correlated:
-#                            yd = None
-#                            if c2Y.val !=0:
-#                                yd = BinYield(samp, newCatName, (c1Y.val/c2Y.val, math.sqrt(pow(c1Y.err/c2Y.val,2) +pow(c1Y.val/pow(c2Y.val,2) *c2Y.err ,2) )) )
-#                            else:
-#                                yd = BinYield(samp, newCatName, (-999,0) )
-#                            print yd
-#                            self.addYield(samp, newCatName,bin,yd)
-#                        else:
-#                            print "not implemented yet, no return defined"
-#
-#
-#            
-#            elif catOne in self.yields[samp] and catTwo in self.yields[samp] and sampleOne==samp and sampleOne!=None:
-#                for bin in self.bins:
-# 
+
+
+    def printTable(self, samps, printSamps, label, f):
+        yds = self.getMixDict(samps)
+        ydsNorm = self.getMixDict([('EWK', 'Kappa'),])
+
+        nSource = len(samps)
+        nCol = nSource + 4
+        bins = sorted(yds.keys())
+        precision = 3
+        f.write('bin                |  SBin |' +  ' %s ' % '     |   '.join(map(str, printSamps)) + ' \n')
+        for i,bin in enumerate(bins):
+            f.write(bin + '')
+            for i,yd in enumerate(yds[bin]):
+                val =yd.val
+                if i == 0:
+                    f.write((' | ' + yd.sbname.replace('_SR','') + '  |    %.'+str(precision)+'f   ' ) % (1+val))
+                else:
+                    f.write(('  |    %.'+str(precision)+'f   ' ) % (1+val))
+            f.write('\n')
+        return 1
+
+
 
 if __name__ == "__main__":
 
