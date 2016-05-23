@@ -45,6 +45,8 @@ if __name__ == "__main__":
     jerNoPath = "Yields/systs/JER_YesNo/merged"; paths.append(jerNoPath)
     btagPath = "Yields/systs/btag/hadFlavour/fixXsec/allSF_noPU/meth1A/merged/"; paths.append(btagPath)
     jecPath = "Yields/systs/JEC/MC/allSF_noPU/meth1A/merged/"; paths.append(jecPath)
+    dlScaleMatchVarPath = "lumi22fb_DlMakeBinYields/ScaleMatchVar/merged"; paths.append(dlScaleMatchVarPath)
+    dlPDFUncPath = "lumi22fb_DlMakeBinYields/PDFUnc-RMS/merged"; paths.append(dlPDFUncPath)
 
     for path in paths:
         yds.addFromFiles(path,("lep","sele"))
@@ -60,8 +62,10 @@ if __name__ == "__main__":
 #    systs = ["JEC"]
 #    systs = ["btagHF","btagLF"]
 #    systs = ["btagLF","btagHF"]
-    systs = ["Wxsec","PU","JEC","btagHF","btagLF","topPt","DLConst","DLSlope","JER"]
-
+#    systs = ["Wxsec","PU","JEC","btagHF","btagLF","topPt","DLConst","DLSlope","JER","ScaleMatchVar-Env","PDFUnc-RMS"]
+#    systs = ["DLConst","DLSlope"]
+#    systs = ["ScaleMatchVar-Env"]
+    systs = ["ScaleMatchVar-Env","PDFUnc-RMS"]
     systNames = {
         "btagLF" : "b-mistag (light)",
         "btagHF" : "b-tag (b/c)",
@@ -78,10 +82,10 @@ if __name__ == "__main__":
     sysCols = [2,4,7,8,3,9,6] + range(40,50)#[1,2,3] + range(4,10)
 
     # Sample and variable
-    samp = "EWK"
-    #samps = ["TTJets","WJets","SingleTop","DY","TTV"]
+    #samp = "EWK"
+    samps = ["EWK","TTJets","WJets","SingleTop","DY","TTV"]
     #samps = ['T_tWch','TToLeptons_tch','TBar_tWch', 'TToLeptons_sch',"EWK"]
-    #samp = samps[4]
+    samp = samps[0]
 
     var = "Kappa"
     #var = "SR_SB"
@@ -92,6 +96,7 @@ if __name__ == "__main__":
 
     # read in central value
     hCentral = yp.makeSampHisto(yds,samp,var)
+    print "hCentral done"
     yp.prepRatio(hCentral)
 
     for i,syst in enumerate(systs):
