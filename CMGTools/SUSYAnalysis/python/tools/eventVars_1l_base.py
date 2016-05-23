@@ -40,7 +40,7 @@ def getRecalcMET(metp4, event, corrJEC = "central", smearJER = "None"):
     # jet pT threshold for MET
     minJpt = 15
 
-    # don't du anything for data
+    # don't do anything for data
     if event.isData: return metp4
 
     # check jets for MET exist in tree, else use normal jets collection (Jet)
@@ -80,7 +80,7 @@ def getRecalcMET(metp4, event, corrJEC = "central", smearJER = "None"):
 def returnJERSmearFactor(aeta, shiftJER):
     # from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
     #13 TeV tables
-           
+
     factor = 1.061 + shiftJER*0.023
     if   aeta > 3.2: factor = 1.320 + shiftJER * 0.286
     elif aeta > 3.0: factor = 1.303 + shiftJER * 0.111
@@ -88,7 +88,7 @@ def returnJERSmearFactor(aeta, shiftJER):
     elif aeta > 1.9: factor = 1.126 + shiftJER * 0.094
     elif aeta > 1.3: factor = 1.106 + shiftJER * 0.030
     elif aeta > 0.8: factor = 1.088 + shiftJER * 0.029
-    
+
     return factor
 
 def returnJERSmearedPt(jetpt,aeta,genpt,smearJER):
@@ -233,7 +233,7 @@ class EventVars1L_base:
 
         self.branches = [
             ## general event info
-            'Run','Event','Lumi','Xsec',
+            'Run','Lumi','Xsec',("Event","l"),
             ## leptons
             'nLep', 'nVeto',
             'nEl','nMu',
@@ -616,7 +616,7 @@ class EventVars1L_base:
             else:
                 pass
             if smearJER!= "None":
-                for jet in jets: jet.pt = returnJERSmearedPt(jet.pt,abs(jet.eta),jet.mcPt,smearJER)                    
+                for jet in jets: jet.pt = returnJERSmearedPt(jet.pt,abs(jet.eta),jet.mcPt,smearJER)
 
         centralJet30 = []; centralJet30idx = []
         centralJet40 = []
@@ -737,7 +737,7 @@ class EventVars1L_base:
             #ret['METfilters'] = event.nVert > 0 and event.Flag_HBHENoiseFilter_fix and event.Flag_CSCTightHaloFilter and event.Flag_eeBadScFilter
             # add HCAL Iso Noise
             if hasattr(event,"Flag_eeBadScFilter"):
-                ret['METfilters'] = event.Flag_goodVertices > 0 and event.Flag_CSCTightHaloFilter and event.Flag_eeBadScFilter and event.Flag_HBHENoiseFilter_fix and event.Flag_HBHENoiseIsoFilter
+                ret['METfilters'] = event.Flag_goodVertices and event.Flag_CSCTightHaloFilter and event.Flag_eeBadScFilter and event.Flag_HBHENoiseFilter_fix and event.Flag_HBHENoiseIsoFilter
             else:
                 ret['METfilters'] = 1
         else:
@@ -757,7 +757,7 @@ class EventVars1L_base:
             recoWp4 =  tightLeps[0].p4() + metp4
 
             dPhiLepW = tightLeps[0].p4().DeltaPhi(recoWp4)
-            LT = tightLeps[0].pt + event.met_pt
+            LT = tightLeps[0].pt + metp4.Pt()
             Lp = tightLeps[0].pt / recoWp4.Pt() * cos(dPhiLepW)
 
             #MT = recoWp4.Mt() # doesn't work
@@ -797,7 +797,7 @@ class EventVars1L_base:
             if event.isData and nJet30C >= 5:
                 isSR = - isSR
         # Multi-B SRs
-        else:
+        elif nJet30C < 99:
             if LT < 250:   isSR = 0
             elif LT < 350: isSR = dPhi > 1.0
             elif LT < 600: isSR = dPhi > 0.75

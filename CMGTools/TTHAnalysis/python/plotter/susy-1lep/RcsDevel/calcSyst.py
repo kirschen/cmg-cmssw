@@ -101,7 +101,13 @@ def getSystHist(tfile, hname, syst = "Xsec"):
         hUp = tfile.Get(upName)
         hDown = tfile.Get(dnName)
     
-        if not hUp or not hDown:
+        if not hUp and hDown:
+            # Replace missing Up with Down
+            hUp = hDown
+        elif not hDown and hUp:
+            # Replace missing Down with Up
+            hDown = hUp
+        elif not hUp or not hDown:
             print 'No systematics found!'
             print tfile, hname, upName, dnName
             return 0
@@ -141,6 +147,8 @@ def getSystHist(tfile, hname, syst = "Xsec"):
     
                 # limit max deviation to 200%
                 maxDev = min(maxDev,2.0)
+                # put at least 0.00001 as dummy
+                maxDev = max(maxDev,0.00001)
     
                 hSyst.SetBinContent(xbin,ybin,maxDev)
                 hSyst.SetBinError(xbin,ybin,maxErr)
@@ -151,13 +159,13 @@ def getSystHist(tfile, hname, syst = "Xsec"):
 def makeSystHists(fileList):
 
     # filter
-    fileList = [fname for fname in fileList if 'NB3' not in fname]
+    #fileList = [fname for fname in fileList if 'NB3' not in fname]
 
     #hnames = ["T1tttt_Scan"] # process name
     #hnames = ["EWK"] # process name
+    hnames = ["EWK","TTJets","WJets","SingleTop","DY","TTV"] # process name
     #hnames = ['T_tWch','TToLeptons_tch','TBar_tWch', 'EWK', 'TToLeptons_sch'] # process name
     #hnames = ["TTJets","WJets","SingleTop","DY","TTV"] # process name
-    hnames = ["EWK","TTJets","WJets","SingleTop","DY","TTV"] # process name
     #hnames = getHnames(fileList[0],'SR_MB') # get process names from file
     #print 'Found these hists:', hnames
 
@@ -167,14 +175,20 @@ def makeSystHists(fileList):
     #systNames = ["Wxsec"]
     systNames = ["ScaleMatchVar-Env"]
     #systNames = ["PDFUnc-RMS"]
+    #systNames = ["Wxsec"]
+    #systNames = ["TTVxsec"]
+    systNames = ["lepSF"]
     #systNames = ["JEC"]
     #systNames = ["DLSlope"]
     #systNames = ["DLConst"]
+    #systNames = ["JER"]
+    #systNames = ["Wpol"]
     #systNames = ["btagHF","btagLF"]
+    #systNames = ["ISR"]
 
     #bindirs =  ['SR_MB','CR_MB','SR_SB','CR_SB']
     #bindirs =  ['SR_MB','CR_MB','SR_SB','CR_SB','Kappa','Rcs_MB','Rcs_SB']
-    bindirs = getDirNames(fileList[0])
+    bindirs = getDirNames(fileList[0])# + [""]
     print "Found those dirs:", bindirs
 
     # dir to store
@@ -191,14 +205,17 @@ def makeSystHists(fileList):
 
             for hname in hnames:
                 for syst in systNames:
-                    if getSystHist(tfile, bindir+'/'+ hname, syst)!=0:
-                        (hSyst,hUp,hDown) = getSystHist(tfile, bindir+'/'+ hname, syst)
 
-                        if hSyst:
-                            tfile.cd(bindir)
+                    if bindir != "":
+                        (hSyst,hUp,hDown) = getSystHist(tfile, bindir+'/'+ hname, syst)
+                    else:
+                        (hSyst,hUp,hDown) = getSystHist(tfile, hname, syst)
+
+                    if hSyst:
+                        tfile.cd(bindir)
                         #sfile.mkdir(bindir)
                         #sfile.cd(bindir)
-                            hSyst.Write("",TObject.kOverwrite)
+                        hSyst.Write("",TObject.kOverwrite)
                         #hUp.Write("",TObject.kOverwrite)
                         #hDown.Write("",TObject.kOverwrite)
 

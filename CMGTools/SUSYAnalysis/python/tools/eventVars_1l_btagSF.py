@@ -7,6 +7,8 @@ import pickle
 # Directory for SFs
 sfdir = "../python/tools/SFs/"
 
+print 80*"#"
+print "Initializing Btag SF"
 
 # Basing on macro from Vienna
 # https://github.com/HephySusySW/Workspace/blob/74X-master/RA4Analysis/cmgPostProcessing/btagEfficiency.py
@@ -309,8 +311,7 @@ def getSampKey(name):
     elif "SingleT" in name: return "TTJets"
     elif "WJets" in name: return "WJets"
     elif "DY" in name: return "WJets"
-    elif "T1tttt" in name: return "TTJets"
-    else: return "none"
+    else: return "TTJets"
 
 class EventVars1L_btagSF:
     def __init__(self):

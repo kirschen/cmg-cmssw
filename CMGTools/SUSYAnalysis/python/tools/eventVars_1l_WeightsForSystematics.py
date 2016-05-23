@@ -146,7 +146,9 @@ class EventVars1LWeightsForSystematics:
             # W polarisation
             "WpolWup","WpolWdown",
             # PDF related -- Work In Progress
-            "pdfW","pdfW_Up","pdfW_Down"
+            #"pdfW","pdfW_Up","pdfW_Down",
+            # Scale uncertainty
+            #"scaleW","scaleW_up","scaleW_down"
             ]
 
     def listBranches(self):
@@ -184,12 +186,11 @@ class EventVars1LWeightsForSystematics:
         pdfWmin = 99
         pdfWmax = 0
         #lheWgts = [w for w in Collection(event,"LHEweight_wgt","nLHEweight")]
-        '''
 
         ret['pdfW'] = pdfWcentr
         ret['pdfW_Up'] = pdfWup
         ret['pdfW_Down'] = pdfWup
-
+        '''
 
         ### TOP RELATED VARS
         genParts = [l for l in Collection(event,"GenPart","nGenPart")]

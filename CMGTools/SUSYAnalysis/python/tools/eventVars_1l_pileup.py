@@ -49,8 +49,9 @@ puNorm =  getPUdict(puFileName_norm)
 puUp =  getPUdict(puFileName_up)
 puDown =  getPUdict(puFileName_down)
 
+print 80*"#"
 print "Loaded PU weights!"
-print puNorm
+#print puNorm
 
 class EventVars1L_pileup:
     def __init__(self):
