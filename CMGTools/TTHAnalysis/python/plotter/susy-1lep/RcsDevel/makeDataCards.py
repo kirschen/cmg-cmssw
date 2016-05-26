@@ -282,9 +282,12 @@ if __name__ == "__main__":
  
     yds6 = YieldStore("lepYields")
     yds9 = YieldStore("lepYields")
-    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ68.*"
+#    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ68.*"
+    pattern = "YieldsMay2/phd/lumi30fb/*/merged/LT*NJ68.*"
     yds6.addFromFiles(pattern,("lep","sele")) 
-    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ9i.*"
+    pattern = "YieldsMay2/phd/lumi30fb/*/merged/LT*NJ9i.*"
+#    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ9i.*"
+
     yds9.addFromFiles(pattern,("lep","sele"))
 
  
@@ -298,8 +301,8 @@ if __name__ == "__main__":
 #    yds9.showStats()
     #pattern = 'arturstuff/grid/merged/LT\*NJ6\*'
     readSystFile()
-    for mGo in range(600, 1700, 25):
-       for mLSP in range(0,1000,25):
+    for mGo in range(600, 2000, 25):
+       for mLSP in range(0,1200,25):
 
 #    for mGo in range(1400, 1550, 50):
 #        for mLSP in range(50,150,50):
