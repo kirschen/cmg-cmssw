@@ -92,21 +92,24 @@ binsNJ['NJ9i'] = ('9 <= nJets30Clean','$\geq$ 9')
 binsNJ['NJ5'] = ('nJets30Clean == 5','[5]')
 binsNJ['NJ4f5'] = ('nJets30Clean == 4','[4]')
 
-##binsNJ for dilepton study (decreased by 1)
-binsNJ['NJ23'] = ('2 <= nJets && nJets <= 3','[2, 3]')
-binsNJ['NJ3i'] = ('3 <= nJets','$\geq$ 3')
-binsNJ['NJ34f8'] = ('3 <= nJets && nJets <= 4','[3, 4]')
-binsNJ['NJ34f7'] = ('3 <= nJets && nJets <= 4','[3, 4]')
-binsNJ['NJ57'] = ('5 <= nJets && nJets <= 7','[5, 7]')
-binsNJ['NJ9i'] = ('8 <= nJets','$\geq$ 8')
+##binsNJ for dilepton study (now taken from the friend trees for variant [2])
+binsNJ['DLNJ34'] = ('3 <= DL_nJets30Clean[2] && DL_nJets30Clean[2] <= 4','[3, 4]')
+binsNJ['DLNJ4i'] = ('4 <= DL_nJets30Clean[2]','$\geq$ 4')
+binsNJ['DLNJ45'] = ('4 <= DL_nJets30Clean[2] && DL_nJets30Clean[2] <= 5','[4, 5]')
+binsNJ['DLNJ45f9'] = ('4 <= DL_nJets30Clean[2] && DL_nJets30Clean[2] <= 5','[4, 5]')
+binsNJ['DLNJ45f6'] = ('4 <= DL_nJets30Clean[2] && DL_nJets30Clean[2] <= 5','[4, 5]')
+binsNJ['DLNJ68'] = ('6 <= DL_nJets30Clean[2] && DL_nJets30Clean[2] <= 8','[6, 8]')
+binsNJ['DLNJ9i'] = ('9 <= DL_nJets30Clean[2]','$\geq$ 9')
+binsNJ['DLNJ5'] = ('DL_nJets30Clean[2] == 5','[5]')
+binsNJ['DLNJ4f5'] = ('DL_nJets30Clean[2] == 4','[4]')
 
 DLnJDict = {}
-DLnJDict['NJ34']   = 'NJ23' 
-DLnJDict['NJ4i']   = 'NJ3i'
-DLnJDict['NJ45f9'] = 'NJ34f8'
-DLnJDict['NJ45f6'] = 'NJ34f7'
-DLnJDict['NJ68']   = 'NJ57' 
-DLnJDict['NJ9i']   = 'NJ9i'
+DLnJDict['NJ34']   = 'DLNJ34'  
+DLnJDict['NJ4i']   = 'DLNJ4i' 
+DLnJDict['NJ45f9'] = 'DLNJ45f9'
+DLnJDict['NJ45f6'] = 'DLNJ45f6'
+DLnJDict['NJ68']   = 'DLNJ68' 
+DLnJDict['NJ9i']   = 'DLNJ9i' 
 
 
 
