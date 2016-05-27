@@ -537,7 +537,7 @@ if __name__ == "__main__":
     predSamps = allSamps + ["background_poisson","QCD_poisson"]
     predSaps = [s for s in predSamps if s in allSamps]
 
-    #replaceEmptyDataBinsWithMC(fileList)
+    replaceEmptyDataBinsWithMC(fileList)
 
     makePoissonErrors(fileList, poisSamps)
     makeQCDsubtraction(fileList, qcdPredSamps)
