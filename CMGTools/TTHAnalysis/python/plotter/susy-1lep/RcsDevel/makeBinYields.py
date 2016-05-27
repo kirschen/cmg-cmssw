@@ -6,26 +6,12 @@ from searchBins import *
 from math import hypot
 
 
-'''
-## Trees
-Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2"
-# MC
->>>>>>> cmg-desy/DESY-CMGTools-from-CMSSW_7_4_12
-mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2/Friends/MC/allSamps_pu69mb"
-#sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2/Friends/Signals/T1tttt_pu69mb_fixMLSP"
-sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2_skimmed/Signal/Friends/FullScanSkim"
-
-# new data
-dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2/Friends/Data/trig_skim_2p1fb"
-'''
-
 ## Trees -- skimmed with trig_base
-#Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/SampLinks_MiniAODv2_skimmed"
 
 Tdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/MiniAODv2_hadrFlav_2p2fb/"
 # MC
 mcFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/MiniAODv2_hadrFlav_2p2fb/Friends/MC/pu69mb_JECcentr/"
-sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/MiniAODv2_hadrFlav_2p2fb/Signal/Friends/FullScanSkim"
+sigFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/MiniAODv2_hadrFlav_2p2fb/T1tttt_Scan/../Friends/pu_69mb_allSF_wScale/"
 
 # new data
 dataFTdir = "/afs/desy.de/user/l/lobanov/public/CMG/SampLinks/MiniAODv2_hadrFlav_2p2fb/Friends/Data/trig_skim_2p2fb/"
@@ -67,7 +53,7 @@ def addOptions(options):
         #options.bins = "34,-1700,1700,10,0,1500"
         options.bins = "161,-2012.5,2012.5,81,-12.5,2012.5"
 
-        #options.friendTreesMC = [("sf/t",sigFTdir+"/evVarFriend_{cname}.root")]
+        options.friendTreesMC = [("sf/t",sigFTdir+"/evVarFriend_{cname}.root")]
         options.cutsToAdd += [("base","Selected","Selected == 1")] # make always selected for signal
 
     elif options.grid:
