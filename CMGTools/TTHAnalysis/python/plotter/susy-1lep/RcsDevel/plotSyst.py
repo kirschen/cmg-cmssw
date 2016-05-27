@@ -63,6 +63,8 @@ if __name__ == "__main__":
         #jecPath = "Yields/systs/JEC/MC/allSF_noPU/meth1A/merged/"; paths.append(jecPath)
         jecPath = "Yields/systs/JEC/MC/allSF_noPU_fixLT/meth1A/merged/"; paths.append(jecPath)
         btagPath = "Yields/systs/btag/hadFlavour/fixXsec/allSF_noPU/meth1A/merged/"; paths.append(btagPath)
+        dlScaleMatchVarPath = "lumi22fb_DlMakeBinYields/ScaleMatchVar/merged"; paths.append(dlScaleMatchVarPath)
+        dlPDFUncPath = "lumi22fb_DlMakeBinYields/PDFUnc-RMS/merged"; paths.append(dlPDFUncPath)
         # lep SF unct < 1%
         #paths = ["Yields/systs/lepSF/test/allSF_noPU/merged_main/"]
         # central value
@@ -93,10 +95,10 @@ if __name__ == "__main__":
 
 #    systs = ["TTVxsec","Wxsec"]
 #    systs = ["Wpol","Wxsec"]
+#    systs = ["ScaleMatchVar-Env","PDFUnc-RMS"]
 #    systs = ["Wpol","Wxsec","PU","JEC","btagHF","btagLF","topPt","DLConst","DLSlope","JER","JERYesNo"]
-    systs = ["TTVxsec","Wpol","Wxsec","PU","JEC","btagHF","btagLF","topPt","DLConst","DLSlope"]
+    systs = ["TTVxsec","Wpol","Wxsec","PU","JEC","btagHF","btagLF","topPt","DLConst","DLSlope","ScaleMatchVar-Env","PDFUnc-RMS"]
 #    systs = ["lepSF"]
-
     systNames = {
         "btagLF" : "b-mistag (light)",
         "btagHF" : "b-tag (b/c)",
@@ -111,6 +113,8 @@ if __name__ == "__main__":
         "JERYesNo" : "JER Yes/No",
         "DLSlope" : "DiLep (N_{j} Slope)",
         "DLConst" : "DiLep (N_{j} Const)",
+        "ScaleMatchVar-Env" : "Scale",
+        "PDFUnc-RMS" : "PDF"
         }
 
     #sysCols = [2,4,7,8,3,9,6] + range(40,50)#[1,2,3] + range(4,10)
@@ -123,10 +127,10 @@ if __name__ == "__main__":
     #sysCols = range(49,40,-2) + range(40,30,-3) + range(50,100,5)
 
     # Sample and variable
-    samp = "EWK"
-    #samps = ["TTJets","WJets","SingleTop","DY","TTV"]
+    #samp = "EWK"
+    samps = ["EWK","TTJets","WJets","SingleTop","DY","TTV"]
     #samps = ['T_tWch','TToLeptons_tch','TBar_tWch', 'TToLeptons_sch',"EWK"]
-    #samp = samps[4]
+    samp = samps[0]
 
     var = "Kappa"
     #var = "SR_SB"
@@ -137,6 +141,7 @@ if __name__ == "__main__":
 
     # read in central value
     hCentral = yp.makeSampHisto(yds,samp,var)
+    print "hCentral done"
     yp.prepRatio(hCentral)
 
     for i,syst in enumerate(systs):
