@@ -283,9 +283,11 @@ if __name__ == "__main__":
     yds6 = YieldStore("lepYields")
     yds9 = YieldStore("lepYields")
 #    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ68.*"
-    pattern = "YieldsMay2/phd/lumi30fb/*/merged/LT*NJ68.*"
+#    pattern = "YieldsMay2/phd/lumi30fb/*/merged/LT*NJ68.*"
+    pattern = "testHenning2/*/merged/LT*NJ68.*"
     yds6.addFromFiles(pattern,("lep","sele")) 
     pattern = "YieldsMay2/phd/lumi30fb/*/merged/LT*NJ9i.*"
+    pattern = "testHenning2/*/merged/LT*NJ9i.*"
 #    pattern = "YieldsMarch8/unblind/lumi2p3fb/allSF_noPU/*/merged/LT*NJ9i.*"
 
     yds9.addFromFiles(pattern,("lep","sele"))
@@ -300,6 +302,11 @@ if __name__ == "__main__":
 #    yds6.showStats()
 #    yds9.showStats()
     #pattern = 'arturstuff/grid/merged/LT\*NJ6\*'
+    ####SELECT DATA OR MC###
+    useMC = False
+    prefix =  'data'
+    if useMC:
+        prefix = 'background'
     readSystFile()
     for mGo in range(600, 2000, 25):
        for mLSP in range(0,1200,25):
@@ -326,15 +333,11 @@ if __name__ == "__main__":
                 cats = ('SR_MB', 'CR_MB', 'SR_SB','CR_SB')
                 catsNoSR = ('CR_MB', 'SR_SB','CR_SB')
                 
-#                sampsABCDbkg = [('data',cat) for cat in catsNoSR]
-                sampsABCDbkg = [('background',cat) for cat in catsNoSR]
-                print sampsABCDbkg
-                ######ATTENTION#####
-                ##at the moment randomly adding 0.3 to the observation, same seed to sequenz is the same####
+                sampsABCDbkg = [(prefix,cat) for cat in catsNoSR]
+#                sampsABCDbkg = [('background',cat) for cat in catsNoSR]
+                sampsABCDbkg.insert(0,(prefix,'SR_MB'))
+#                sampsABCDbkg.insert(0,('background','SR_MB'))
 
-#                sampsABCDbkg.insert(0,('data','SR_MB'))
-                sampsABCDbkg.insert(0,('background','SR_MB'))
-#                print sampsABCDbkg
                 sampsABCDsig = [(SMS+'_Scan_mGo'+str(mGo)+'_mLSP'+str(mLSP),cat) for cat in cats]
               #  sampsABCDSigSys = [('T1tttt_Scan_btagHF_syst_mGo'+str(mGo)+'_mLSP'+str(mLSP),cat), ('T1tttt_Scan_btagLF_syst_mGo'+str(mGo)+'_mLSP'+str(mLSP),cat),]
                 cat = 'SR_MB'
@@ -351,7 +354,7 @@ if __name__ == "__main__":
                 ydsABCD = ydIn.getMixDict(sampsABCD)
                 ydsObsABCD = ydIn.getMixDict(sampsABCDbkg)
 #                ydsKappa = ydIn.getMixDict([('EWK','Kappa'), ('data_QCDpred','CR_MB'), ('data_QCDpred','CR_SB') ])
-                ydsKappa = ydIn.getMixDict([('EWK','Kappa'), ('background_QCDpred','CR_MB'), ('background_QCDpred','CR_SB') ])
+                ydsKappa = ydIn.getMixDict([('EWK','Kappa'), (prefix+'_QCDpred','CR_MB'), (prefix+'_QCDpred','CR_SB') ])
                 ydsABCDSigSys = ydsSys.getMixDict(sampsABCDSigSys)
                 
                 printABCDCard(ydsABCD, ydsObsABCD, ydsKappa, ydsABCDSigSys)
